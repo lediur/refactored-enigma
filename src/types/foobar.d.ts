@@ -5,7 +5,7 @@ declare enum ReplayGainMode {
   PlaybackOrder,
 }
 
-type FbMetadbHandle = any;
+type FbMetadbHandleList = any;
 
 type FbTodo = any;
 
@@ -16,7 +16,7 @@ declare interface FbUiSelectionHolder {
    * Sets the selected items
    * @see {@link https://github.com/lediur/foo_jscript_panel/blob/master/foo_jscript_panel/docs/Interfaces.txt}
    */
-  SetSelection(handleList: FbMetadbHandle[]): void;
+  SetSelection(handleList: FbMetadbHandleList): void;
 
   /**
    * Sets selected items to playlist selection and enables tracking.
@@ -93,7 +93,7 @@ declare interface ContextMenuManager {
   ): void;
   Dispose(): void;
   ExecuteByID(id: AppendMenuItemId): boolean;
-  InitContext(handle_list: FbMetadbHandle[]): void;
+  InitContext(handle_list: FbMetadbHandleList): void;
   InitNowPlaying(): void;
 }
 
@@ -250,7 +250,7 @@ declare namespace fb {
    * @param handleList handles to foobar playback items
    * @returns whether or not copy the items to the clipboard was successful
    */
-  function CopyHandleListToClipboard(handleList: FbMetadbHandle[]): boolean;
+  function CopyHandleListToClipboard(handleList: FbMetadbHandleList): boolean;
 
   /**
    * @see {@link samples/basic/MainMenuManager All-In-One.txt}
@@ -258,7 +258,10 @@ declare namespace fb {
    */
   function CreateContextMenuManager(): ContextMenuManager;
 
-  // function CreateHandleList()
+  /**
+   * @returns an empty handle list
+   */
+  function CreateHandleList(): FbMetadbHandleList;
   // function CreateMainMenuManager()
   // function CreateProfiler([name])
   // function DoDragDrop(handle_list, effect)
