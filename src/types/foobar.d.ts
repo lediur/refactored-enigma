@@ -63,6 +63,14 @@ declare interface MenuItemName extends String {
   _minBrand: any;
 }
 
+declare interface OutputDeviceId extends String {
+  _odidBrand: any;
+}
+
+declare interface OutputId extends String {
+  _oidBrand: any;
+}
+
 declare interface MenuObj {
   /**
    * @param flags
@@ -153,9 +161,9 @@ declare type DSPPresetList = DSPPreset[];
 
 declare interface OutputDevice {
   active: boolean;
-  device_id: string;
+  device_id: OutputDeviceId;
   name: string;
-  output_id: string;
+  output_id: OutputId;
 }
 
 declare type OutputDeviceList = OutputDevice[];
@@ -598,10 +606,18 @@ declare namespace fb {
    * @param command A "/" separated command (e.g. "File/Add Location...")
    */
   function RunMainMenuCommand(command: string): boolean;
-  // function SavePlaylist()
-  // function SetDSPPreset(idx)
-  // function SetOutputDevice(output, device)
-  // function ShowConsole()
+
+  function SavePlaylist(): void;
+
+  /**
+   * foobar2000 v1.4 and above only. Throws a script error on v1.3.
+   * @param idx index in the DSP array returned by {@link GetDSPPreset}
+   */
+  function SetDSPPreset(idx: number): void;
+
+  function SetOutputDevice(output: OutputId, device: OutputDeviceId): void;
+
+  function ShowConsole(): void;
   // function ShowLibrarySearchUI(query)
   // function ShowPopupMessage(msg[, title])
   // function ShowPreferences()
