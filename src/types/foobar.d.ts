@@ -625,7 +625,12 @@ declare namespace fb {
    */
   function ShowLibrarySearchUI(query: QueryString): void;
 
-  // function ShowPopupMessage(msg[, title])
+  /**
+   *
+   * @param msg The message to display
+   * @param title The title of the window (default "JScript Panel")
+   */
+  function ShowPopupMessage(msg: string, title: string): void;
   // function ShowPreferences()
   // function Stop()
   // function TitleFormat(expression)
