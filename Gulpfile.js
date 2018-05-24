@@ -1,7 +1,10 @@
-var gulp = require('gulp');
-var browserify = require('browserify');
-var babelify = require('babelify');
-var source = require('vinyl-source-stream');
+const gulp = require('gulp');
+const browserify = require('browserify');
+const babelify = require('babelify');
+const source = require('vinyl-source-stream');
+const streamqueue = require('streamqueue');
+const concat = require('gulp-concat');
+const buffer = require('vinyl-buffer');
 
 gulp.task('default', function() {
   var config = {
@@ -9,9 +12,9 @@ gulp.task('default', function() {
     filename: 'index.js',
     dest: 'dist/',
   };
+
   var extensions = ['.js', '.ts', '.json'];
-  var b = browserify({ extensions: extensions });
-  b
+  const mainStream = browserify({ extensions: extensions })
     .plugin('tsify', { target: 'es6' })
     .transform(
       babelify.configure({
@@ -26,5 +29,12 @@ gulp.task('default', function() {
       throw e;
     })
     .pipe(source(config.filename))
+    .pipe(buffer());
+
+  const preShim = gulp.src('shims/preshim.js');
+  const postShim = gulp.src('shims/postshim.js');
+
+  streamqueue({ objectMode: true }, preShim, mainStream, postShim)
+    .pipe(concat(config.filename))
     .pipe(gulp.dest(config.dest));
 });
