@@ -71,6 +71,10 @@ declare interface OutputId extends String {
   _oidBrand: any;
 }
 
+declare interface TimerId extends Number {
+  _oidBrand: any;
+}
+
 declare interface MenuObj {
   /**
    * @param flags
@@ -670,4 +674,225 @@ declare namespace fb {
   function VolumeDown(): void;
   function VolumeMute(): void;
   function VolumeUp(): void;
+}
+
+declare namespace window {
+  /**
+  See flags.txt > With window.DlgCode
+
+  Example:
+  window.DlgCode(DLGC_WANTALLKEYS);
+  */
+  function DlgCode(): number;
+
+  /** Required in utils.ColourPicker, utils.GetAlbumArtAsync, utils.LoadImageAsync */
+  const ID: number;
+
+  /**
+ Returns 0 if using Columns UI, 1 if using default UI.
+ You need this to determine which GetFontXXX and GetColourXXX methods to use, assuming you want to support both interfaces.
+ */
+  const InstanceType: number;
+
+  /**
+Depends on setting inside JScript Panel Configuration window. You generally use it to determine
+whether or not to draw a background. Only useful within Panel Stack Splitter (Columns UI component)
+*/
+  const IsTransparent: boolean;
+
+  const IsVisible: boolean;
+
+  const Height: number;
+
+  let MaxHeight: number;
+  let MaxWidth: number;
+  let MinHeight: number;
+  let MinWidth: number;
+  // The previous 4 methods can be used to lock the panel size. Do not use if panels are contained within Panel Stack Splitter (Columns UI component).
+
+  /**
+     Returns the @name set in the preprocessor section. See preprocessors.txt
+     If that isn't present, the GUID of the panel is returned.
+     */
+  const Name: string;
+
+  const Width: number;
+
+  function ClearInterval(timerID: TimerId): void;
+  function ClearTimeout(timerID: TimerId): void;
+  function SetInterval(func: () => void, delay: number): number;
+  function SetTimeout(func: () => void, delay: number): number;
+  // See samples\basic\Timer.txt
+
+  // window.CreatePopupMenu(); (IMenuObj)
+  // // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+
+  //   interface IMenuObj {
+  //     Methods:
+  //       AppendMenuItem(flags, item_id, text); (void)
+  //       /*
+  //       flags: See flags.txt > Used in AppendMenuItem()
+  //       item_id: integer greater than 0. Each menu item needs a unique id.
+  //       */
+
+  //       AppendMenuSeparator(); (void)
+
+  //       AppendTo(parentMenu, flags, text); (void)
+
+  //       CheckMenuItem(item_id, check); (void)
+  //       // check: boolean.
+
+  //       CheckMenuRadioItem(first_item_id, last_item_id, selected_item_id); (void)
+
+  //       Dispose(); (void)
+
+  //       TrackPopupMenu(x, y[, flags]); (int)
+  //       // flags: default 0. See flags.txt > Used in TrackPopupMenu()
+  //   }
+
+  // window.CreateThemeManager(class_list); (IThemeManager)
+  // /*
+  // class_list: http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx
+  // See samples\basic\SimpleThemedButton.txt
+  // */
+
+  //   interface IThemeManager {
+  //     Methods:
+  //       DrawThemeBackground(IGdiGraphics, x, y, w, h[, clip_x][, clip_y][, clip_w][, clip_h]); (void)
+  //       // clip_x, clip_y, clip_w, clip_h: defaults to 0 if omitted
+
+  //       IsThemePartDefined(partid); (boolean)
+  //       SetPartAndStateID(partid[, stateid]); (void)
+  //       /*
+  //       partid
+  //       stateid: default 0
+  //       See http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx
+  //       */
+  //   }
+
+  // window.CreateTooltip([font_name][, font_size_px][, font_style]); (IFbTooltip)
+  // /*
+  // font_name: default "Segoe UI"
+  // font_size_px: default 12
+  // font_style: default 0. See flags.txt > FontStyle
+  // */
+
+  //   interface IFbTooltip {
+  //     /*
+  //     This will be used in the examples below.
+  //     var tooltip = window.CreateTooltip();
+  //     */
+
+  //     Properties:
+  //       Text; (string) (read, write)
+  //       /*
+  //       Example:
+  //       tooltip.Text = "Whoop";
+  //       */
+
+  //       TrackActivate; (boolean) (write)
+
+  //     Methods:
+  //       Activate(); (void)
+  //       /*
+  //       Only do this when text has changed otherwise it will flicker
+
+  //       Example:
+  //       var text = "...";
+  //       if (tooltip.Text != text) {
+  //         tooltip.Text = text;
+  //         tooltip.Activate();
+  //       }
+  //       */
+
+  //       Deactivate(); (void)
+
+  //       Dispose(); (void)
+
+  //       GetDelayTime(type); (int)
+  //       SetDelayTime(type, time); (void)
+  //       // type. See flags.txt > Used in IFbTooltip.GetDelayTime() and IFbTooltip.SetDelayTime()
+
+  //       SetMaxWidth(width); (void)
+  //       /*
+  //       Use if you want multi-line tooltips.
+
+  //       Example:
+  //       tooltip.SetMaxWidth(800);
+  //       tooltip.Text = "Line1\nLine2";
+  //       Use \n as a new line separator.
+  //       */
+
+  //       TrackPosition(x, y); (void)
+  //       // Check x, y positions have changed from last time otherwise it will flicker
+  //   }
+
+  // window.GetColourCUI(type[, client_guid]); (uint)
+  // window.GetColourDUI(type); (uint)
+
+  // window.GetFontCUI(type[, client_guid]); (IGdiFont)
+  // window.GetFontDUI(type); (IGdiFont)
+  // /*
+  // type:
+  // See flags.txt > Used in window.GetFontXXX()
+  // client_guid: default "".
+  // See flags.txt > Used in GetFontCUI() as client_guid.
+  // This returns null if the component was unable to determine your font.
+  // To avoid errors when trying to use the font or access its properties, you
+  // should use code something like this...
+
+  // var font = window.GetFontDUI(0);
+  // if (!font) {
+  //   console.log("Unable to determine your default font. Using Segoe UI instead.");
+  //   font = gdi.Font("Segoe UI", 12);
+  // }
+  // */
+
+  // window.NotifyOthers(name, info); (void)
+  // /*
+  // name: string
+  // info: all variable/array/object types should be supported
+  // Listen for notifications in other panels using on_notify_data(name, info) {}
+  // */
+
+  // window.Reload(); (void)
+  // // reload panel
+
+  // window.Repaint([force]); (void)
+  // // force: boolean, default false.
+
+  // window.RepaintRect(x, y, w, h[, force]); (void)
+  // /*
+  // force: boolean, default false.
+
+  // Use this instead of window.Repaint on frequently updated areas
+  // such as time, bitrate, seekbar, etc.
+  // */
+
+  // window.SetCursor(id); (void)
+  // /*
+  // id: See flags.txt > Used in window.SetCursor()
+  // This would usually be used inside the on_mouse_move callback. Use -1 if you want to hide the cursor.
+  // */
+
+  // window.GetProperty(name[, defaultval]); (VARIANT)
+  // /*
+  // name: string
+  // defaultval: string, number, boolean
+  // Get value of name from properties. If no value is present, defaultval will be stored and returned
+  // */
+
+  // window.SetProperty(name, val); (void)
+  // /*
+  // name: string
+  // val: string, number, boolean
+  // Set property value, if val is invalid/null, it is removed. Property values will be saved per panel instance and are
+  // remembered between foobar2000 restarts.
+  // */
+
+  // window.ShowConfigure(); (void)
+  // // Show configuration window of current panel.
+
+  // window.ShowProperties(); (void)
+  // // Show properties window of current panel.
 }
