@@ -631,8 +631,9 @@ declare namespace fb {
    * @param title The title of the window (default "JScript Panel")
    */
   function ShowPopupMessage(msg: string, title: string): void;
-  // function ShowPreferences()
-  // function Stop()
+
+  function ShowPreferences(): void;
+  function Stop(): void;
   // function TitleFormat(expression)
   // function VolumeDown()
   // function VolumeMute()
