@@ -720,8 +720,8 @@ whether or not to draw a background. Only useful within Panel Stack Splitter (Co
 
   function ClearInterval(timerID: TimerId): void;
   function ClearTimeout(timerID: TimerId): void;
-  function SetInterval(func: () => void, delay: number): number;
-  function SetTimeout(func: () => void, delay: number): number;
+  function SetInterval(func: () => void, delay: number): TimerId;
+  function SetTimeout(func: () => void, delay: number): TimerId;
   // See samples\basic\Timer.txt
 
   // window.CreatePopupMenu(); (IMenuObj)
