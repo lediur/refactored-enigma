@@ -59,6 +59,10 @@ declare interface QueryString extends String {
   _qsBrand: any;
 }
 
+declare interface MenuItemName extends String {
+  _minBrand: any;
+}
+
 declare interface MenuObj {
   /**
    * @param flags
@@ -68,12 +72,16 @@ declare interface MenuObj {
   AppendMenuItem(
     flags: AppendMenuItemFlags,
     item_id: number,
-    text: string
+    text: MenuItemName
   ): void;
 
   AppendMenuSeparator(): void;
 
-  AppendTo(parentMenu: MenuObj, flags: AppendMenuItemFlags, text: string): void;
+  AppendTo(
+    parentMenu: MenuObj,
+    flags: AppendMenuItemFlags,
+    text: MenuItemName
+  ): void;
 
   CheckMenuItem(item_id: number, check: boolean): void;
 
@@ -165,6 +173,24 @@ declare enum SelectionType {
   NowPlaying,
   KeyboardShortcutList,
   MediaLibraryViewer,
+}
+
+declare enum ContextCommandFlags {
+  /**
+   * depends on whether SHIFT key is pressed, flag_view_reduced or flag_view_full is selected
+   */
+  Default = 0,
+
+  /**
+   * Excludes commands hidden by user context menu preferences
+   */
+  FlagViewReduced = 4,
+
+  /**
+   * Includes all possible context menu items, including those hidden by the user's context menu preferences
+   * at File>Preferences>Display>Context Menu
+   */
+  FlagViewFull = 8,
 }
 
 declare namespace fb {
@@ -550,7 +576,12 @@ declare namespace fb {
   function PlayOrPause(): void;
   function Prev(): void;
   function Random(): void;
-  // function RunContextCommand(command[, flags])
+
+  function RunContextCommand(
+    command: MenuItemName,
+    flags: ContextCommandFlags
+  ): boolean;
+
   // function RunContextCommandWithMetadb(command, handle_or_handle_list[, flags])
   // function RunMainMenuCommand(command)
   // function SavePlaylist()
