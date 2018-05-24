@@ -535,15 +535,21 @@ declare namespace fb {
 
   function IsLibraryEnabled(): boolean;
 
+  /**
+   *
+   * @param handle
+   * @returns whether the provided handle is in the media library
+   */
   function IsMetadbInMediaLibrary(handle: FbMetadbHandle): boolean;
 
-  // function LoadPlaylist()
-  // function Next()
-  // function Pause()
-  // function Play()
-  // function PlayOrPause()
-  // function Prev()
-  // function Random()
+  function LoadPlaylist(): void;
+
+  function Next(): void;
+  function Pause(): void;
+  function Play(): void;
+  function PlayOrPause(): void;
+  function Prev(): void;
+  function Random(): void;
   // function RunContextCommand(command[, flags])
   // function RunContextCommandWithMetadb(command, handle_or_handle_list[, flags])
   // function RunMainMenuCommand(command)
