@@ -12,6 +12,7 @@
 
 // TODO
 /* tslint:disable:no-bitwise */
+/* tslint:disable:no-any */
 
 const AlbumArtId = {
   front: 0,
@@ -20,40 +21,40 @@ const AlbumArtId = {
   icon: 3,
 };
 
-function RGB(r: number, g: number, b: number) {
+function RGB(r: number, g: number, b: number): number {
   return 0xff000000 | (r << 16) | (g << 8) | b;
 }
-function RGBA(r: number, g: number, b: number, a: number) {
+function RGBA(r: number, g: number, b: number, a: number): number {
   return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
-function getAlpha(color: number) {
+function getAlpha(color: number): number {
   return (color >> 24) & 0xff;
 }
-function getRed(color: number) {
+function getRed(color: number): number {
   return (color >> 16) & 0xff;
 }
-function getGreen(color: number) {
+function getGreen(color: number): number {
   return (color >> 8) & 0xff;
 }
-function getBlue(color: number) {
+function getBlue(color: number): number {
   return color & 0xff;
 }
 
-function setAlpha(color: number, a: number) {
+function setAlpha(color: number, a: number): number {
   return (color & 0x00ffffff) | (a << 24);
 }
-function setRed(color: number, r: number) {
+function setRed(color: number, r: number): number {
   return (color & 0xff00ffff) | (r << 16);
 }
-function setGreen(color: number, g: number) {
+function setGreen(color: number, g: number): number {
   return (color & 0xffff00ff) | (g << 8);
 }
-function setBlue(color: number, b: number) {
+function setBlue(color: number, b: number): number {
   return (color & 0xffffff00) | b;
 }
 
-function clamp(num: number, low: number, high: number) {
+function clamp(num: number, low: number, high: number): number {
   if (num < low) {
     return low;
   } else if (num > high) {
@@ -105,40 +106,45 @@ const semiboldFont = 'Segoe UI Semibold';
 const semilightFont = 'Segoe UI Semilight';
 
 //  Timer
-const timer: TimerId | null = null;
+let timer: TimerId | null = null;
 const timerInterval: number | null = null;
 const TIMER_INTERVAL_NORMAL = 100;
 const TIMER_INTERVAL_ANIM = 1000 / 60;
 const justStarted = true;
 
 //  foobar Specific Variables
-const stubImagePath = fb.ProfilePath + 'images\\metropanel\\stub.png';
+const stubImagePath = `${fb.ProfilePath}\\images\\metropanel\\stub.png`;
 
 //  DEBUGGING VARIABLES
 const consoleEnabled = false;
 const debugging = new Debugging();
 
+// Lingering consts
+const shuffleStatus = new ShuffleStatus();
+// tslint:disable-next-line:no-any
+const MetadataArray: any[] = MetadataInitialize();
+
 //  Display Manager
 
-const DisplayManager = (function() {
-  function DisplayManager() {
-    this.windowWidth = window.Width;
-    this.windowHeight = window.Height;
+class DisplayManager {
+  private width: number;
+  private height: number;
+  private animationTimerEngaged: boolean;
 
-    shuffleStatus = new ShuffleStatus();
-    MetadataArray = MetadataInitialize();
-
+  constructor() {
+    this.width = window.Width;
+    this.height = window.Height;
     this.animationTimerEngaged = false;
   }
 
-  DisplayManager.prototype.Paint = function(gr) {
+  public Paint(gr: any) {
     gr.SetTextRenderingHint(4);
 
     // Background fill
-    gr.FillSolidRect(0, 0, this.windowWidth, this.windowHeight, C_BACKGROUND);
+    gr.FillSolidRect(0, 0, this.width, this.height, C_BACKGROUND);
 
     if (MetadataArray) {
-      for (var index in MetadataArray) {
+      for (const index of MetadataArray) {
         MetadataArray[index].evaledInfo = MetadataArray[index].Eval();
       }
     }
@@ -146,19 +152,17 @@ const DisplayManager = (function() {
     // Draw metadata.
     if (MetadataArray) {
       //debugging.Trace("[DISPLAY SUBSYSTEM] Drawing MetadataArray: " + MetadataArray);
-      for (var index in MetadataArray) {
-        var alignment = 0;
-
+      for (const index of MetadataArray) {
         MetadataArray[index].Paint(gr);
       }
     }
 
     // Draw progress bar.
-    if (fb.PlaybackTime > 0 && fb.playbackLength != 0) {
+    if (fb.PlaybackTime > 0 && fb.PlaybackLength !== 0) {
       gr.FillSolidRect(
         0,
-        this.windowHeight - 5,
-        fb.PlaybackTime / fb.PlaybackLength * this.windowWidth,
+        this.height - 5,
+        fb.PlaybackTime / fb.PlaybackLength * this.width,
         5,
         C_ACCENT
       );
@@ -181,99 +185,120 @@ const DisplayManager = (function() {
 
       debugging.Paint(gr);
     }
-  };
+  }
 
-  DisplayManager.prototype.StartAnimation = function() {
+  public StartAnimation() {
     if (!this.animationTimerEngaged) {
       debugging.Trace('[DISPLAY] Started isAnimating...');
       timer = window.SetInterval(on_timer, TIMER_INTERVAL_ANIM);
       this.animationTimerEngaged = true;
     }
-  };
+  }
 
-  DisplayManager.prototype.EndAnimation = function() {
+  public EndAnimation() {
     if (this.animationTimerEngaged) {
       debugging.Trace('[DISPLAY] Stopped isAnimating...');
       timer = window.SetInterval(on_timer, TIMER_INTERVAL_NORMAL);
       this.animationTimerEngaged = true;
     }
-  };
+  }
 
-  DisplayManager.prototype.AnimationLatch = function(isAnimating) {
-    if (isAnimating && !this.AnimationTimerEngaged) {
+  public AnimationLatch(isAnimating: boolean) {
+    if (isAnimating && !this.animationTimerEngaged) {
       this.StartAnimation();
-    } else if (!isAnimating && this.AnimationTimerEngaged) {
-      this.StopAnimation();
+    } else if (!isAnimating && this.animationTimerEngaged) {
+      this.EndAnimation();
     }
-  };
+  }
+}
 
-  return DisplayManager;
-})();
-
-displayManager = new DisplayManager();
+const displayManager = new DisplayManager();
 
 //  Animations
-var Animation = (function() {
-  function Animation(initX, initY, endX, endY, fade, initA, endA, easing) {
+class Animation {
+  private initX: number;
+  private initY: number;
+  private endX: number;
+  private endY: number;
+  private shouldFade: boolean;
+  private initA: number;
+  private endA: number;
+  private shouldEase: boolean;
+  private timer: number;
+  private duration: number;
+  private tick: number;
+
+  constructor(
+    initX: number,
+    initY: number,
+    endX: number,
+    endY: number,
+    shouldFade: boolean = false,
+    initA: number = 0,
+    endA: number = 255,
+    shouldEase: boolean = true
+  ) {
     this.initX = initX;
     this.initY = initY;
     this.endX = endX;
     this.endY = endY;
-    this.fade = fade || false;
-    this.initA = initA != 0 ? initA : 0;
-    this.endA = endA != 255 ? endA : 255;
-    this.easing = !easing ? easing : true;
+    this.shouldFade = shouldFade;
+    this.initA = initA;
+    this.endA = endA;
+    this.shouldEase = shouldEase;
 
     this.timer = 0;
     this.duration = 800 * 0.06;
     this.tick = 0.0;
   }
 
-  Animation.prototype.X = function() {
+  public reset() {
+    this.tick = 0;
+    this.timer = 0;
+  }
+
+  public X() {
     return this.endX - (this.endX - this.initX) * (1 - this.tick);
-  };
+  }
 
-  Animation.prototype.Y = function() {
+  public Y() {
     return this.endY - (this.endY - this.initY) * (1 - this.tick);
-  };
+  }
 
-  Animation.prototype.A = function() {
+  private A() {
     return this.endA - (this.endA - this.initA) * (1 - this.tick);
-  };
+  }
 
-  Animation.prototype.Ease = function(t, b, c, d) {
-    t /= d;
-    t--;
-    return c * (t * t * t + 1) + b;
-  };
+  private Ease(tick: number, start: number, rate: number, duration: number) {
+    const updatedTick = tick / duration - 1;
+    return rate * (updatedTick * updatedTick * updatedTick + 1) + start;
+  }
 
   // We perform an easing function to smoothly interpolate the time function
   // for the animation between init and end.
-  Animation.prototype.Update = function() {
+  public Update() {
     this.tick = this.Ease(this.timer, 0.0, 1.0, this.duration);
-    this.timer++;
+    this.timer = this.timer + 1;
     //debugging.Trace("[ANIMATION SUBSYSTEM] Updating tick. tick: " + this.tick);
-    return this.tick != 1;
-  };
+    return this.tick !== 1;
+  }
+}
 
-  return Animation;
-})();
-
-var newAlbumArtAnimationIn = new Animation(
+const newAlbumArtAnimationIn = new Animation(
   500,
   ALBUMART_Y,
   ALBUMART_X,
   ALBUMART_Y
 );
 
-var newAlbumArtAnimationOut = new Animation(
+const newAlbumArtAnimationOut = new Animation(
   ALBUMART_X,
   ALBUMART_Y,
   -380,
   ALBUMART_Y
 );
 
-var newArtistAnimation = new Animation(
+const newArtistAnimation = new Animation(
   -380,
   ARTIST_Y,
   ARTIST_X,
@@ -281,21 +306,21 @@ var newArtistAnimation = new Animation(
   true
 );
 
-var newAlbumAnimation = new Animation(-380, ALBUM_Y, ALBUM_X, ALBUM_Y, true);
+const newAlbumAnimation = new Animation(-380, ALBUM_Y, ALBUM_X, ALBUM_Y, true);
 
-var newTitleAnimation = new Animation(-380, TITLE_Y, TITLE_X, TITLE_Y, true);
+const newTitleAnimation = new Animation(-380, TITLE_Y, TITLE_X, TITLE_Y, true);
 
 //  Module Managers
 
-function AlbumArtManager() {
-  this.currentAlbumArt = new AlbumArtImage();
-  this.previousAlbumArt = null;
+class AlbumArtManager {
+  private currentAlbumArt = new AlbumArtImage();
+  private previousAlbumArt: any | null = null;
 
-  this.isAnimating = false;
-  this.animationIn = newAlbumArtAnimationIn;
-  this.animationOut = newAlbumArtAnimationOut;
+  private isAnimating = false;
+  private animationIn = newAlbumArtAnimationIn;
+  private animationOut = newAlbumArtAnimationOut;
 
-  this.Paint = function(gr) {
+  public Paint(gr: any) {
     this.Animate();
 
     if (this.currentAlbumArt) {
@@ -303,19 +328,19 @@ function AlbumArtManager() {
       this.currentAlbumArt.Paint(gr);
     }
 
-    if (this.previousAlbumArt && this.isAnimating) {
+    if (this.previousAlbumArt != null && this.isAnimating) {
       //debugging.Trace("[ALBUM ART MANAGER] Painting Previous Album Art.");
       this.previousAlbumArt.Paint(gr);
     }
 
     if (consoleEnabled) {
-      debugging.Append('ALBUM ART isAnimating: ' + this.isAnimating);
+      debugging.Append(`ALBUM ART isAnimating: ${this.isAnimating}`);
     }
-  };
+  }
 
   //  When a new song is played, we want to animate the old album art out
   //  and animate in the new album art.
-  this.UpdateAlbumArt = function(metadb) {
+  private UpdateAlbumArt(metadb: any) {
     debugging.Trace('[ALBUM ART MANAGER] Update Album Art');
     //  Let's clone the AlbumArtImage object for the old song
     //  and place it in a buffer.
@@ -324,29 +349,31 @@ function AlbumArtManager() {
     //  Move the album art off frame to be animated in.
     this.currentAlbumArt.X = -180;
 
-    if (this.previousAlbumArt) {
+    if (this.previousAlbumArt != null) {
       debugging.Trace('[ALBUM ART MANAGER] Previous album art cloned.');
       this.previousAlbumArt.X = 20;
 
       this.isAnimating = true;
 
-      this.animationIn.tick = 0;
-      this.animationIn.timer = 0;
-
-      this.animationOut.tick = 0;
-      this.animationOut.timer = 0;
+      this.animationIn.reset();
+      this.animationOut.reset();
     }
 
     //  Now, load the AlbumArtImage for the current song. It will be
     //  updated asynchronously.
     this.currentAlbumArt.Load(metadb);
-  };
+  }
 
-  this.DoneUpdatingAlbumArt = function(metadb, art_id, image, image_path) {
+  private DoneUpdatingAlbumArt(
+    metadb: any,
+    art_id: any,
+    image: any,
+    image_path: any
+  ) {
     this.currentAlbumArt.UpdateAlbumArt(metadb, art_id, image, image_path);
-  };
+  }
 
-  this.Update = function() {
+  public Update() {
     if (this.isAnimating) {
       if (this.currentAlbumArt) {
         this.currentAlbumArt.X = this.animationIn.X();
@@ -356,9 +383,9 @@ function AlbumArtManager() {
         this.previousAlbumArt.X = this.animationOut.X();
       }
     }
-  };
+  }
 
-  this.Animate = function() {
+  public Animate() {
     if (this.isAnimating) {
       this.isAnimating = this.animationIn.Update();
       this.isAnimating = this.animationOut.Update();
@@ -369,27 +396,28 @@ function AlbumArtManager() {
 
     displayManager.AnimationLatch(this.isAnimating);
     this.Update();
-  };
+  }
 }
 
-var albumArtManager = new AlbumArtManager();
+const albumArtManager = new AlbumArtManager();
 
 //  Objects
 
-function AlbumArtImage() {
-  this.albumArt = null;
+class AlbumArtImage {
+  private albumArt = null;
 
-  this.alpha = 255;
-  (this.X = ALBUMART_X), (this.Y = ALBUMART_Y);
+  private alpha = 255;
+  private X = ALBUMART_X;
+  private Y = ALBUMART_Y);
 
-  this.animateIn = false;
-  this.animateOut = false;
+  private animateIn = false;
+  private animateOut = false;
 
-  var scaleW;
-  var scaleH;
-  this.scale = 0;
+  private scaleW: number;
+  private scaleH: number;
+  private scale = 0;
 
-  this.Paint = function(gr) {
+  public Paint(gr: any) {
     if (this.albumArt) {
       gr.DrawImage(
         this.albumArt,
@@ -419,17 +447,17 @@ function AlbumArtImage() {
     }
   };
 
-  this.Load = function(metadb) {
+  public Load(metadb: any) {
     debugging.Trace('[ALBUM ART IMAGE] Load');
     // GetAlbumArtAsync will run in the background
     // When it's finished, on_get_album_art_done() will get called.
-    if (metadb) utils.GetAlbumArtAsync(window.ID, metadb, AlbumArtId.front);
+    if (metadb) {
+      utils.GetAlbumArtAsync(window.ID, metadb, AlbumArtId.front);
+    }
     this.albumArt = gdi.Image(fb.FoobarPath + 'images\\metropanel\\stub.png');
   };
 
-  this.Update = function() {};
-
-  this.UpdateAlbumArt = function(metadb, art_id, image, image_path) {
+  public UpdateAlbumArt(metadb: any, art_id: any, image: any, image_path: any) {
     debugging.Trace('[ALBUM ART IMAGE] Received, ImagePath: ' + image_path);
     if (image_path.length > 0) {
       debugging.Trace('[ALBUM ART IMAGE] Image Loaded');
@@ -448,11 +476,9 @@ function AlbumArtImage() {
       this.scale = Math.min(scaleW, scaleH);
 
       if (scaleW < scaleH) {
-        Y =
-          (displayManager.windowWidth - this.albumArt.height * this.scale) / 2;
+        Y = (displayManager.width - this.albumArt.height * this.scale) / 2;
       } else if (scaleW > scaleH) {
-        X =
-          (displayManager.windowHeight - this.albumArt.Width * this.scale) / 2;
+        X = (displayManager.height - this.albumArt.Width * this.scale) / 2;
       }
 
       debugging.Trace('[ALBUM ART IMAGE] Processed');
@@ -562,7 +588,7 @@ function InfoString(
     // DebugPane.Append("DynamicInfo: " + this.dynamicInfo);
 
     if (this.dynamicInfo != null) {
-      var evalled = this.dynamicInfo.Eval();
+      const evalled = this.dynamicInfo.Eval();
       // debugging.Append("DynamicInfoEval: " + evalled);
       return evalled;
     } else {
@@ -639,8 +665,8 @@ function ShuffleStatus() {
     //  0: Sequential
     //  1: Repeat
     //  2: Shuffle
-    var shuffleIcons = new Array('➔', '', '');
-    var currentShuffleIcon;
+    let shuffleIcons = new Array('➔', '', '');
+    let currentShuffleIcon;
 
     switch (playbackOrder) {
       case 2:
@@ -659,7 +685,7 @@ function ShuffleStatus() {
 }
 
 function MetadataInitialize() {
-  var SidebarTitleArray = new Array(
+  let SidebarTitleArray = new Array(
     'SHUFFLE',
     'CODEC',
     'BITRATE',
@@ -667,7 +693,7 @@ function MetadataInitialize() {
     'CHANNELS',
     'HEART'
   );
-  var SidebarFormatArray = new Array(
+  let SidebarFormatArray = new Array(
     shuffleStatus,
     fb.TitleFormat('%codec%'),
     fb.TitleFormat(
@@ -679,7 +705,7 @@ function MetadataInitialize() {
     fb.TitleFormat('%channels%'),
     fb.TitleFormat('$repeat(♥, %LASTFM_LOVED_DB%)')
   );
-  var MetadataArray = new Array();
+  let MetadataArray = new Array();
 
   //  Artist
   MetadataArray[0] = new InfoString(
@@ -775,7 +801,7 @@ function MetadataInitialize() {
     fb.TitleFormat('-%playback_time_remaining%'),
     2
   );
-  var sidebarIndex = 0;
+  let sidebarIndex = 0;
   //  Shuffle status
   MetadataArray[5 + sidebarIndex] = new InfoString(
     shuffleStatus,
@@ -816,11 +842,11 @@ function MetadataInitialize() {
 
 function Debugging() {
   this.log = '';
-  var lines = 0;
-  var debugColor = RGBA(27, 161, 226, 255);
-  var frameCounterColor = RGBA(255, 255, 255, 255);
-  var framePos = 0;
-  var enableTracing = false;
+  let lines = 0;
+  let debugColor = RGBA(27, 161, 226, 255);
+  let frameCounterColor = RGBA(255, 255, 255, 255);
+  let framePos = 0;
+  let enableTracing = false;
 
   this.Append = function(e) {
     this.log += e + '\n';
@@ -837,7 +863,7 @@ function Debugging() {
       C_TITLE,
       10,
       10,
-      displayManager.windowWidth,
+      displayManager.width,
       15 * lines
     );
 
@@ -849,13 +875,13 @@ function Debugging() {
 
   this.Trace = function(input) {
     if (enableTracing) {
-      var timestampDate = new Date();
+      let timestampDate = new Date();
 
-      var timestampHour = timestampDate.getHours();
-      var timestampMinute = timestampDate.getMinutes();
-      var timestampSecond = timestampDate.getSeconds();
-      var timestampMSecond = timestampDate.getMilliseconds();
-      var timestamp =
+      let timestampHour = timestampDate.getHours();
+      let timestampMinute = timestampDate.getMinutes();
+      let timestampSecond = timestampDate.getSeconds();
+      let timestampMSecond = timestampDate.getMilliseconds();
+      let timestamp =
         timestampHour +
         ':' +
         timestampMinute +
@@ -864,7 +890,7 @@ function Debugging() {
         '.' +
         timestampMSecond;
 
-      var coalesced = '[' + timestamp + '] ' + input;
+      let coalesced = '[' + timestamp + '] ' + input;
 
       console.log(coalesced);
     }
@@ -874,8 +900,8 @@ function Debugging() {
 //  Callbacks
 
 function on_paint(gr) {
-  displayManager.windowHeight = window.Height;
-  displayManager.windowWidth = window.Width;
+  displayManager.height = window.Height;
+  displayManager.width = window.Width;
 
   displayManager.Paint(gr);
 }
@@ -901,8 +927,8 @@ function on_playback_starting(cmd, paused) {
 }
 
 function on_playback_new_track(metadb) {
-  for (var index in MetadataArray) {
-    var alignment = 0;
+  for (let index in MetadataArray) {
+    let alignment = 0;
 
     MetadataArray[index].evaledInfo = MetadataArray[index].Eval();
   }
@@ -925,11 +951,15 @@ function on_get_album_art_done(metadb, art_id, image, image_path) {
 }
 
 function on_mouse_wheel(delta) {
-  if (plman.PlaybackOrder == 0 && delta == -1) plman.PlaybackOrder = 6;
+  if (plman.PlaybackOrder == 0 && delta == -1) {
+    plman.PlaybackOrder = 6;
+  }
 
   plman.PlaybackOrder += delta * 2;
 
-  if (plman.PlaybackOrder > 4) plman.PlaybackOrder = 0;
+  if (plman.PlaybackOrder > 4) {
+    plman.PlaybackOrder = 0;
+  }
 }
 
 function on_timer() {
