@@ -10,115 +10,117 @@
 
 //  System Helper Functions
 
-AlbumArtId = {
+// TODO
+/* tslint:disable:no-bitwise */
+
+const AlbumArtId = {
   front: 0,
   back: 1,
   disc: 2,
   icon: 3,
 };
 
-function RGB(r, g, b) {
+function RGB(r: number, g: number, b: number) {
   return 0xff000000 | (r << 16) | (g << 8) | b;
 }
-function RGBA(r, g, b, a) {
+function RGBA(r: number, g: number, b: number, a: number) {
   return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
-function getAlpha(color) {
+function getAlpha(color: number) {
   return (color >> 24) & 0xff;
 }
-function getRed(color) {
+function getRed(color: number) {
   return (color >> 16) & 0xff;
 }
-function getGreen(color) {
+function getGreen(color: number) {
   return (color >> 8) & 0xff;
 }
-function getBlue(color) {
+function getBlue(color: number) {
   return color & 0xff;
 }
 
-function setAlpha(color, a) {
+function setAlpha(color: number, a: number) {
   return (color & 0x00ffffff) | (a << 24);
 }
-function setRed(color, r) {
+function setRed(color: number, r: number) {
   return (color & 0xff00ffff) | (r << 16);
 }
-function setGreen(color, g) {
+function setGreen(color: number, g: number) {
   return (color & 0xffff00ff) | (g << 8);
 }
-function setBlue(color, b) {
+function setBlue(color: number, b: number) {
   return (color & 0xffffff00) | b;
 }
 
-function clamp(x, l, h) {
-  return x < l ? l : x > h ? h : x;
+function clamp(num: number, low: number, high: number) {
+  if (num < low) {
+    return low;
+  } else if (num > high) {
+    return high;
+  } else {
+    return num;
+  }
 }
 
 //  Global Variables
 
-//  Managers and Functions
-var displayManager;
-var albumArtManager;
-var shuffleStatus;
-var MetadataArray;
-
 //  Position Information
-var ARTIST_X = 20;
-var ARTIST_Y = 75;
+const ARTIST_X = 20;
+const ARTIST_Y = 75;
 
-var ALBUM_X = 20;
-var ALBUM_Y = 110;
+const ALBUM_X = 20;
+const ALBUM_Y = 110;
 
-var ALBUMART_X = 20;
-var ALBUMART_Y = 160;
+const ALBUMART_X = 20;
+const ALBUMART_Y = 160;
 
-var TITLE_X = 20;
-var TITLE_Y = 340;
+const TITLE_X = 20;
+const TITLE_Y = 340;
 
-var TIMEP_X = 20;
-var TIMEP_Y = 435;
+const TIMEP_X = 20;
+const TIMEP_Y = 435;
 
-var TIMET_X = 135;
-var TIMET_Y = 435;
+const TIMET_X = 135;
+const TIMET_Y = 435;
 
-var META_X = 215;
-var META_STARTINGY = 308;
-var META_DELTA = 20;
+const META_X = 215;
+const META_STARTINGY = 308;
+const META_DELTA = 20;
 
 //  Color Information
-var C_BACKGROUND = RGB(240, 240, 240);
-var C_FOREGROUND = RGB(10, 10, 10);
-var C_ACCENT = RGB(0, 174, 255);
-var C_SUBTLE = C_FOREGROUND & (100 << 24);
-var C_ARTIST = C_FOREGROUND;
-var C_ALBUM = C_FOREGROUND;
-var C_TITLE = C_FOREGROUND;
-var C_TIME = C_FOREGROUND;
-var C_META = C_FOREGROUND;
+const C_BACKGROUND = RGB(240, 240, 240);
+const C_FOREGROUND = RGB(10, 10, 10);
+const C_ACCENT = RGB(0, 174, 255);
+const C_SUBTLE = C_FOREGROUND & (100 << 24);
+const C_ARTIST = C_FOREGROUND;
+const C_ALBUM = C_FOREGROUND;
+const C_TITLE = C_FOREGROUND;
+const C_TIME = C_FOREGROUND;
+const C_META = C_FOREGROUND;
 
 // Font information
-var normalFont = 'Segoe UI';
-var semiboldFont = 'Segoe UI Semibold';
-var semilightFont = 'Segoe UI Semilight';
+const normalFont = 'Segoe UI';
+const semiboldFont = 'Segoe UI Semibold';
+const semilightFont = 'Segoe UI Semilight';
 
 //  Timer
-var timer;
-var timerInterval;
-var TIMER_INTERVAL_NORMAL = 100;
-var TIMER_INTERVAL_ANIM = 1000 / 60;
-var justStarted = true;
+const timer: TimerId | null = null;
+const timerInterval: number | null = null;
+const TIMER_INTERVAL_NORMAL = 100;
+const TIMER_INTERVAL_ANIM = 1000 / 60;
+const justStarted = true;
 
 //  foobar Specific Variables
-var playbackOrder;
-var stubImagePath = fb.ProfilePath + 'images\\metropanel\\stub.png';
+const stubImagePath = fb.ProfilePath + 'images\\metropanel\\stub.png';
 
 //  DEBUGGING VARIABLES
-var consoleEnabled = false;
-var debugging = new Debugging();
+const consoleEnabled = false;
+const debugging = new Debugging();
 
 //  Display Manager
 
-var DisplayManager = (function() {
+const DisplayManager = (function() {
   function DisplayManager() {
     this.windowWidth = window.Width;
     this.windowHeight = window.Height;
@@ -172,7 +174,7 @@ var DisplayManager = (function() {
       debugging.Append((this.animationTimerEngaged ? '60' : '10') + ' FPS');
       debugging.Append(
         'PlaybackOrder: ' +
-          playbackOrder +
+          plman.PlaybackOrder +
           ', CurrentShuffleIcon: ' +
           shuffleStatus.Eval()
       );
@@ -906,14 +908,11 @@ function on_playback_new_track(metadb) {
   }
 
   albumArtManager.UpdateAlbumArt(metadb);
-  playbackOrder = fb.PlaybackOrder;
   CollectGarbage();
   window.Repaint();
 }
 
-function on_playback_order_changed(index) {
-  playbackOrder = fb.PlaybackOrder;
-}
+function on_playback_order_changed(index) {}
 
 function on_playback_pause(state) {}
 
@@ -926,13 +925,11 @@ function on_get_album_art_done(metadb, art_id, image, image_path) {
 }
 
 function on_mouse_wheel(delta) {
-  if (fb.PlaybackOrder == 0 && delta == -1) fb.PlaybackOrder = 6;
+  if (plman.PlaybackOrder == 0 && delta == -1) plman.PlaybackOrder = 6;
 
-  fb.PlaybackOrder += delta * 2;
+  plman.PlaybackOrder += delta * 2;
 
-  if (fb.PlaybackOrder > 4) fb.PlaybackOrder = 0;
-
-  playbackOrder = fb.PlaybackOrder;
+  if (plman.PlaybackOrder > 4) plman.PlaybackOrder = 0;
 }
 
 function on_timer() {

@@ -896,3 +896,17 @@ whether or not to draw a background. Only useful within Panel Stack Splitter (Co
   // window.ShowProperties(); (void)
   // // Show properties window of current panel.
 }
+
+declare enum PlaybackOrder {
+  Default = 0,
+  RepeatPlaylist = 1,
+  RepeatTrack = 2,
+  Random = 3,
+  ShuffleTracks = 4,
+  ShuffleAlbums = 5,
+  ShuffleFolders = 6,
+}
+
+declare namespace plman {
+  let PlaybackOrder: PlaybackOrder;
+}
