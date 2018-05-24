@@ -15,6 +15,9 @@
     "no-suspicious-comment": false,
     "newline-before-return": false,
     "member-ordering": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "no-console": false,
+    "max-func-body-length": false,
+    "no-relative-imports": false
   }
 }
