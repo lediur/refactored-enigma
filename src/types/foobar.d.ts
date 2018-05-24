@@ -533,8 +533,10 @@ declare namespace fb {
    */
   function GetSelectionType(): SelectionType;
 
-  // function IsLibraryEnabled()
-  // function IsMetadbInMediaLibrary(handle)
+  function IsLibraryEnabled(): boolean;
+
+  function IsMetadbInMediaLibrary(handle: FbMetadbHandle): boolean;
+
   // function LoadPlaylist()
   // function Next()
   // function Pause()
