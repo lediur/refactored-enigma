@@ -201,6 +201,37 @@ declare enum ContextCommandFlags {
   FlagViewFull = 8,
 }
 
+declare interface VBArray<T> {
+  toArray(): T[];
+}
+
+declare interface FbTitleFormat {
+  Dispose(): void;
+
+  /**
+   * Evaluate the title format string against the currently playing track.
+   *
+   * Always use Eval when you want dynamic info such as %playback_time%, %bitrate% etc.
+   * EvalWithMetadb(fb.GetNowplaying()) will not give the results you want.
+   *
+   * @param force process text without title formatting even if a track isn't playing. When playing, you should always get a result.
+   */
+  Eval(force?: boolean): string;
+
+  /**
+   * Evaluate the title format string against the provided handle. If the track is currently playing,
+   * use {@link Eval} instead to get dynamically updating information.
+   * @param handle
+   */
+  EvalWithMetadb(handle: FbMetadbHandle): string;
+
+  /**
+   * Evaluate the title format against the provided handle list. Same caveats as {@link EvalWithMetadb}.
+   * @param handle_list
+   */
+  EvalWithMetadbs(handle_list: FbMetadbHandleList): VBArray<string>;
+}
+
 declare namespace fb {
   /**
    * Whether the "Always on top" setting is checked
@@ -634,7 +665,8 @@ declare namespace fb {
 
   function ShowPreferences(): void;
   function Stop(): void;
-  // function TitleFormat(expression)
+
+  function TitleFormat(expression: string): FbTitleFormat;
   // function VolumeDown()
   // function VolumeMute()
   // function VolumeUp()
