@@ -147,17 +147,6 @@ export const TTDT_RESHOW: number = 1;
 export const TTDT_AUTOPOP: number = 2;
 export const TTDT_INITIAL: number = 3;
 
-// Used in gdi.Font(), can be combined
-// For more information, see: http://msdn.microsoft.com/en-us/library/ms534124(VS.85).aspx
-enum FontStyle {
-  Regular = 0,
-  Bold = 1,
-  Italic = 2,
-  BoldItalic = 3,
-  Underline = 4,
-  Strikeout = 8,
-}
-
 // Used in SetTextRenderingHint()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534404(VS.85).aspx
 enum TextRenderingHint {
