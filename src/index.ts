@@ -197,8 +197,6 @@ class ShuffleStatus {
 
 // Lingering consts
 const shuffleStatus = new ShuffleStatus();
-// tslint:disable-next-line:no-any
-const MetadataArray: any[] = MetadataInitialize();
 
 //  Display Manager
 
@@ -220,17 +218,13 @@ class DisplayManager {
     gr.FillSolidRect(0, 0, this.width, this.height, C_BACKGROUND);
 
     if (MetadataArray) {
-      for (const index of MetadataArray) {
-        MetadataArray[index].evaledInfo = MetadataArray[index].Eval();
-      }
+      MetadataArray.forEach((elem, index) => (elem.evaledInfo = elem.Eval()));
     }
 
     // Draw metadata.
     if (MetadataArray) {
       //debugging.Trace("[DISPLAY SUBSYSTEM] Drawing MetadataArray: " + MetadataArray);
-      for (const index of MetadataArray) {
-        MetadataArray[index].Paint(gr);
-      }
+      MetadataArray.forEach((elem, index) => (elem.evaledInfo = elem.Eval()));
     }
 
     // Draw progress bar.
@@ -265,7 +259,7 @@ class DisplayManager {
   public StartAnimation() {
     if (!this.animationTimerEngaged) {
       debugging.Trace('[DISPLAY] Started isAnimating...');
-      timer = window.SetInterval(on_timer, TIMER_INTERVAL_ANIM);
+      timer = window.SetInterval(callbacks.on_timer, TIMER_INTERVAL_ANIM);
       this.animationTimerEngaged = true;
     }
   }
@@ -273,7 +267,7 @@ class DisplayManager {
   public EndAnimation() {
     if (this.animationTimerEngaged) {
       debugging.Trace('[DISPLAY] Stopped isAnimating...');
-      timer = window.SetInterval(on_timer, TIMER_INTERVAL_NORMAL);
+      timer = window.SetInterval(callbacks.on_timer, TIMER_INTERVAL_NORMAL);
       this.animationTimerEngaged = true;
     }
   }
@@ -742,6 +736,9 @@ class InfoString {
   }
 }
 
+// tslint:disable-next-line:no-any
+const MetadataArray: any[] = MetadataInitialize();
+
 function MetadataInitialize() {
   const SidebarTitleArray = [
     'SHUFFLE',
@@ -919,60 +916,58 @@ function MetadataInitialize() {
 
 //  Callbacks
 
-function on_paint(gr: any) {
+callbacks.on_paint = (gr: any) => {
   displayManager.height = window.Height;
   displayManager.width = window.Width;
 
   displayManager.Paint(gr);
-}
+};
 
-function on_size() {
+callbacks.on_size = () => {
   // debugging.Trace("[BASE] Resized, width: " + window.Width + ", height: " + window.Height);
 
   window.Repaint();
-}
+};
 
-function on_key_up(key: any) {
+callbacks.on_key_up = (key: any) => {
   // 0xC0 is the tilde key.
   if (key === 0xc0) {
     consoleEnabled = !consoleEnabled;
   }
-}
+};
 
-function on_playback_starting(cmd: any, paused: boolean) {
+callbacks.on_playback_starting = (cmd: any, paused: boolean) => {
   if (justStarted) {
     justStarted = false;
   }
 
   if (timerInterval != null) {
-    timer = window.SetInterval(on_timer, timerInterval);
+    timer = window.SetInterval(callbacks.on_timer, timerInterval);
   }
-}
+};
 
-function on_playback_new_track(metadb: FbMetadbHandle) {
-  for (const index of MetadataArray) {
-    MetadataArray[index].evaledInfo = MetadataArray[index].Eval();
-  }
+callbacks.on_playback_new_track = (metadb: FbMetadbHandle) => {
+  MetadataArray.forEach((elem, index) => (elem.evaledInfo = elem.Eval()));
 
   albumArtManager.UpdateAlbumArt(metadb);
   CollectGarbage();
   window.Repaint();
-}
+};
 
-function on_playback_stop() {
+callbacks.on_playback_stop = () => {
   window.Repaint();
-}
+};
 
-function on_get_album_art_done(
+callbacks.on_get_album_art_done = (
   metadb: FbMetadbHandle,
   art_id: any,
   image: any,
   image_path: any
-) {
+) => {
   albumArtManager.DoneUpdatingAlbumArt(metadb, art_id, image, image_path);
-}
+};
 
-function on_mouse_wheel(delta: number) {
+callbacks.on_mouse_wheel = (delta: number) => {
   if (plman.PlaybackOrder === 0 && delta === -1) {
     plman.PlaybackOrder = 6;
   }
@@ -982,10 +977,10 @@ function on_mouse_wheel(delta: number) {
   if (plman.PlaybackOrder > 4) {
     plman.PlaybackOrder = 0;
   }
-}
+};
 
-function on_timer() {
+callbacks.on_timer = () => {
   window.Repaint();
-}
+};
 
-on_playback_new_track(fb.GetNowPlaying());
+callbacks.on_playback_new_track(fb.GetNowPlaying());
