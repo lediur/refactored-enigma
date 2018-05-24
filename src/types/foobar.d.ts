@@ -582,7 +582,16 @@ declare namespace fb {
     flags: ContextCommandFlags
   ): boolean;
 
-  // function RunContextCommandWithMetadb(command, handle_or_handle_list[, flags])
+  /**
+   * @param command
+   * @param handleOrHandleList output from something like fb.GetFocusItem() or plman.GetPlaylistSelectedItems(plman.ActivePlaylist)
+   * @param flags
+   */
+  function RunContextCommandWithMetadb(
+    command: MenuItemName,
+    handleOrHandleList: FbMetadbHandle | FbMetadbHandleList,
+    flags: ContextCommandFlags
+  ): boolean;
   // function RunMainMenuCommand(command)
   // function SavePlaylist()
   // function SetDSPPreset(idx)
