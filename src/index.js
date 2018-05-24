@@ -17,16 +17,6 @@ AlbumArtId = {
   icon: 3,
 };
 
-var DT_TOP = 0x00000000;
-var DT_LEFT = 0x00000000;
-var DT_CENTER = 0x00000001;
-var DT_RIGHT = 0x00000002;
-var DT_VCENTER = 0x00000004;
-var DT_BOTTOM = 0x00000008;
-var DT_WORDBREAK = 0x00000010;
-var DT_CALCRECT = 0x00000400;
-var DT_NOPREFIX = 0x00000800;
-
 function RGB(r, g, b) {
   return 0xff000000 | (r << 16) | (g << 8) | b;
 }
@@ -107,9 +97,9 @@ var C_TIME = C_FOREGROUND;
 var C_META = C_FOREGROUND;
 
 // Font information
-var normalFont = "Segoe UI";
-var semiboldFont = "Segoe UI Semibold";
-var semilightFont = "Segoe UI Semilight";
+var normalFont = 'Segoe UI';
+var semiboldFont = 'Segoe UI Semibold';
+var semilightFont = 'Segoe UI Semilight';
 
 //  Timer
 var timer;
@@ -120,7 +110,7 @@ var justStarted = true;
 
 //  foobar Specific Variables
 var playbackOrder;
-var stubImagePath = fb.ProfilePath + "images\\metropanel\\stub.png";
+var stubImagePath = fb.ProfilePath + 'images\\metropanel\\stub.png';
 
 //  DEBUGGING VARIABLES
 var consoleEnabled = false;
@@ -163,7 +153,13 @@ var DisplayManager = (function() {
 
     // Draw progress bar.
     if (fb.PlaybackTime > 0 && fb.playbackLength != 0) {
-      gr.FillSolidRect(0, this.windowHeight - 5, fb.PlaybackTime / fb.PlaybackLength * this.windowWidth, 5, C_ACCENT);
+      gr.FillSolidRect(
+        0,
+        this.windowHeight - 5,
+        fb.PlaybackTime / fb.PlaybackLength * this.windowWidth,
+        5,
+        C_ACCENT
+      );
     }
 
     // Draw the album art.
@@ -173,8 +169,13 @@ var DisplayManager = (function() {
 
     // DEBUGGING INFORMATION
     if (consoleEnabled) {
-      debugging.Append((this.animationTimerEngaged ? "60" : "10") + " FPS");
-      debugging.Append("PlaybackOrder: " + playbackOrder + ", CurrentShuffleIcon: " + shuffleStatus.Eval());
+      debugging.Append((this.animationTimerEngaged ? '60' : '10') + ' FPS');
+      debugging.Append(
+        'PlaybackOrder: ' +
+          playbackOrder +
+          ', CurrentShuffleIcon: ' +
+          shuffleStatus.Eval()
+      );
 
       debugging.Paint(gr);
     }
@@ -182,7 +183,7 @@ var DisplayManager = (function() {
 
   DisplayManager.prototype.StartAnimation = function() {
     if (!this.animationTimerEngaged) {
-      debugging.Trace("[DISPLAY] Started isAnimating...");
+      debugging.Trace('[DISPLAY] Started isAnimating...');
       timer = window.SetInterval(on_timer, TIMER_INTERVAL_ANIM);
       this.animationTimerEngaged = true;
     }
@@ -190,7 +191,7 @@ var DisplayManager = (function() {
 
   DisplayManager.prototype.EndAnimation = function() {
     if (this.animationTimerEngaged) {
-      debugging.Trace("[DISPLAY] Stopped isAnimating...");
+      debugging.Trace('[DISPLAY] Stopped isAnimating...');
       timer = window.SetInterval(on_timer, TIMER_INTERVAL_NORMAL);
       this.animationTimerEngaged = true;
     }
@@ -256,11 +257,27 @@ var Animation = (function() {
   return Animation;
 })();
 
-var newAlbumArtAnimationIn = new Animation(500, ALBUMART_Y, ALBUMART_X, ALBUMART_Y);
+var newAlbumArtAnimationIn = new Animation(
+  500,
+  ALBUMART_Y,
+  ALBUMART_X,
+  ALBUMART_Y
+);
 
-var newAlbumArtAnimationOut = new Animation(ALBUMART_X, ALBUMART_Y, -380, ALBUMART_Y);
+var newAlbumArtAnimationOut = new Animation(
+  ALBUMART_X,
+  ALBUMART_Y,
+  -380,
+  ALBUMART_Y
+);
 
-var newArtistAnimation = new Animation(-380, ARTIST_Y, ARTIST_X, ARTIST_Y, true);
+var newArtistAnimation = new Animation(
+  -380,
+  ARTIST_Y,
+  ARTIST_X,
+  ARTIST_Y,
+  true
+);
 
 var newAlbumAnimation = new Animation(-380, ALBUM_Y, ALBUM_X, ALBUM_Y, true);
 
@@ -290,14 +307,14 @@ function AlbumArtManager() {
     }
 
     if (consoleEnabled) {
-      debugging.Append("ALBUM ART isAnimating: " + this.isAnimating);
+      debugging.Append('ALBUM ART isAnimating: ' + this.isAnimating);
     }
   };
 
   //  When a new song is played, we want to animate the old album art out
   //  and animate in the new album art.
   this.UpdateAlbumArt = function(metadb) {
-    debugging.Trace("[ALBUM ART MANAGER] Update Album Art");
+    debugging.Trace('[ALBUM ART MANAGER] Update Album Art');
     //  Let's clone the AlbumArtImage object for the old song
     //  and place it in a buffer.
     this.previousAlbumArt = this.currentAlbumArt.Clone();
@@ -306,7 +323,7 @@ function AlbumArtManager() {
     this.currentAlbumArt.X = -180;
 
     if (this.previousAlbumArt) {
-      debugging.Trace("[ALBUM ART MANAGER] Previous album art cloned.");
+      debugging.Trace('[ALBUM ART MANAGER] Previous album art cloned.');
       this.previousAlbumArt.X = 20;
 
       this.isAnimating = true;
@@ -388,8 +405,8 @@ function AlbumArtImage() {
 
       if (consoleEnabled) {
         gr.GdiDrawText(
-          Math.floor(this.X) + " " + Math.floor(this.Y),
-          gdi.Font("Consolas", 18, 0),
+          Math.floor(this.X) + ' ' + Math.floor(this.Y),
+          gdi.Font('Consolas', 18, 0),
           C_TITLE,
           this.X + 10,
           this.Y + 150,
@@ -401,22 +418,24 @@ function AlbumArtImage() {
   };
 
   this.Load = function(metadb) {
-    debugging.Trace("[ALBUM ART IMAGE] Load");
+    debugging.Trace('[ALBUM ART IMAGE] Load');
     // GetAlbumArtAsync will run in the background
     // When it's finished, on_get_album_art_done() will get called.
     if (metadb) utils.GetAlbumArtAsync(window.ID, metadb, AlbumArtId.front);
-    this.albumArt = gdi.Image(fb.FoobarPath + "images\\metropanel\\stub.png");
+    this.albumArt = gdi.Image(fb.FoobarPath + 'images\\metropanel\\stub.png');
   };
 
   this.Update = function() {};
 
   this.UpdateAlbumArt = function(metadb, art_id, image, image_path) {
-    debugging.Trace("[ALBUM ART IMAGE] Received, ImagePath: " + image_path);
+    debugging.Trace('[ALBUM ART IMAGE] Received, ImagePath: ' + image_path);
     if (image_path.length > 0) {
-      debugging.Trace("[ALBUM ART IMAGE] Image Loaded");
+      debugging.Trace('[ALBUM ART IMAGE] Image Loaded');
       this.albumArt = image;
     } else {
-      debugging.Trace("[ALBUM ART IMAGE] IMAGE MISSING, STUB AT " + stubImagePath);
+      debugging.Trace(
+        '[ALBUM ART IMAGE] IMAGE MISSING, STUB AT ' + stubImagePath
+      );
       this.albumArt = gdi.Image(stubImagePath);
     }
 
@@ -427,23 +446,40 @@ function AlbumArtImage() {
       this.scale = Math.min(scaleW, scaleH);
 
       if (scaleW < scaleH) {
-        Y = (displayManager.windowWidth - this.albumArt.height * this.scale) / 2;
+        Y =
+          (displayManager.windowWidth - this.albumArt.height * this.scale) / 2;
       } else if (scaleW > scaleH) {
-        X = (displayManager.windowHeight - this.albumArt.Width * this.scale) / 2;
+        X =
+          (displayManager.windowHeight - this.albumArt.Width * this.scale) / 2;
       }
 
-      debugging.Trace("[ALBUM ART IMAGE] Processed");
-      debugging.Trace("[ALBUM ART IMAGE]\tWidth: " + this.albumArt.Width + ", Height: " + this.albumArt.Height);
-      debugging.Trace("[ALBUM ART IMAGE]\tScaleW: " + scaleW + ", ScaleH: " + scaleH + ", Scale: " + this.scale);
+      debugging.Trace('[ALBUM ART IMAGE] Processed');
       debugging.Trace(
-        "[ALBUM ART IMAGE]\tWidth *: " +
+        '[ALBUM ART IMAGE]\tWidth: ' +
+          this.albumArt.Width +
+          ', Height: ' +
+          this.albumArt.Height
+      );
+      debugging.Trace(
+        '[ALBUM ART IMAGE]\tScaleW: ' +
+          scaleW +
+          ', ScaleH: ' +
+          scaleH +
+          ', Scale: ' +
+          this.scale
+      );
+      debugging.Trace(
+        '[ALBUM ART IMAGE]\tWidth *: ' +
           this.albumArt.Width * this.scale +
-          ", Height *: " +
+          ', Height *: ' +
           this.albumArt.Height * this.scale
       );
-      debugging.Trace("[ALBUM ART IMAGE]\tAlpha: " + this.alpha);
+      debugging.Trace('[ALBUM ART IMAGE]\tAlpha: ' + this.alpha);
 
-      this.albumArt = this.albumArt.Resize(this.albumArt.Width * this.scale, this.albumArt.Height * this.scale);
+      this.albumArt = this.albumArt.Resize(
+        this.albumArt.Width * this.scale,
+        this.albumArt.Height * this.scale
+      );
     }
   };
 
@@ -537,13 +573,22 @@ function InfoString(
   this.Paint = function(gr) {
     this.Animate();
 
-    gr.DrawString(this.Text, this.Font(), this.Color, this.X, this.Y, this.W, this.H, DT_WORDBREAK | alignmentHex);
+    gr.DrawString(
+      this.Text,
+      this.Font(),
+      this.Color,
+      this.X,
+      this.Y,
+      this.W,
+      this.H,
+      DT_WORDBREAK | alignmentHex
+    );
   };
 
   //  When a new song is played, we want to animate the old album art out
   //  and animate in the new album art.
   this.Refresh = function() {
-    debugging.Trace("[INFOSTRING " + this.Text + " + ] Refresh");
+    debugging.Trace('[INFOSTRING ' + this.Text + ' + ] Refresh');
 
     //  Move the album art off frame to be animated in.
     this.X = -380;
@@ -592,7 +637,7 @@ function ShuffleStatus() {
     //  0: Sequential
     //  1: Repeat
     //  2: Shuffle
-    var shuffleIcons = new Array("➔", "", "");
+    var shuffleIcons = new Array('➔', '', '');
     var currentShuffleIcon;
 
     switch (playbackOrder) {
@@ -612,24 +657,31 @@ function ShuffleStatus() {
 }
 
 function MetadataInitialize() {
-  var SidebarTitleArray = new Array("SHUFFLE", "CODEC", "BITRATE", "SAMPRATE", "CHANNELS", "HEART");
+  var SidebarTitleArray = new Array(
+    'SHUFFLE',
+    'CODEC',
+    'BITRATE',
+    'SAMPRATE',
+    'CHANNELS',
+    'HEART'
+  );
   var SidebarFormatArray = new Array(
     shuffleStatus,
-    fb.TitleFormat("%codec%"),
+    fb.TitleFormat('%codec%'),
     fb.TitleFormat(
-      "$if($strcmp(%__encoding%,lossy),%bitrate% kbps,$if(%__bitspersample%,%__bitspersample% bit,interpreted))"
+      '$if($strcmp(%__encoding%,lossy),%bitrate% kbps,$if(%__bitspersample%,%__bitspersample% bit,interpreted))'
     ),
     fb.TitleFormat(
-      "$div(%samplerate%,1000)$ifgreater($cut($mod(%samplerate%,1000),1),0,.$cut($mod(%samplerate%,1000),1),) kHz"
+      '$div(%samplerate%,1000)$ifgreater($cut($mod(%samplerate%,1000),1),0,.$cut($mod(%samplerate%,1000),1),) kHz'
     ),
-    fb.TitleFormat("%channels%"),
-    fb.TitleFormat("$repeat(♥, %LASTFM_LOVED_DB%)")
+    fb.TitleFormat('%channels%'),
+    fb.TitleFormat('$repeat(♥, %LASTFM_LOVED_DB%)')
   );
   var MetadataArray = new Array();
 
   //  Artist
   MetadataArray[0] = new InfoString(
-    "",
+    '',
     ARTIST_X,
     ARTIST_Y,
     1999,
@@ -639,13 +691,13 @@ function MetadataInitialize() {
     0,
     C_ARTIST,
     newArtistAnimation,
-    fb.TitleFormat("%artist%"),
+    fb.TitleFormat('%artist%'),
     0
   );
 
   //  Album
   MetadataArray[1] = new InfoString(
-    "",
+    '',
     ALBUM_X,
     ALBUM_Y,
     1999,
@@ -655,13 +707,13 @@ function MetadataInitialize() {
     0,
     C_ALBUM,
     newAlbumAnimation,
-    fb.TitleFormat("%album%"),
+    fb.TitleFormat('%album%'),
     0
   );
 
   //  Title
   MetadataArray[2] = new InfoString(
-    "",
+    '',
     TITLE_X,
     TITLE_Y,
     1999,
@@ -671,13 +723,13 @@ function MetadataInitialize() {
     0,
     C_TITLE,
     newTitleAnimation,
-    fb.TitleFormat("%title%"),
+    fb.TitleFormat('%title%'),
     0
   );
 
   //  Time Elapsed
   MetadataArray[3] = new InfoString(
-    "0:00",
+    '0:00',
     TIMEP_X,
     TIMEP_Y,
     150,
@@ -687,13 +739,13 @@ function MetadataInitialize() {
     0,
     C_TIME,
     null,
-    fb.TitleFormat("%playback_time%"),
+    fb.TitleFormat('%playback_time%'),
     0
   );
 
   //  Total time
   MetadataArray[4] = new InfoString(
-    "-:--",
+    '-:--',
     TIMET_X,
     TIMET_Y,
     150,
@@ -703,12 +755,12 @@ function MetadataInitialize() {
     0,
     C_ACCENT,
     null,
-    fb.TitleFormat("%length%"),
+    fb.TitleFormat('%length%'),
     2
   );
   //  Remaining time
   MetadataArray[13] = new InfoString(
-    "-:--",
+    '-:--',
     TIMET_X - 110,
     TIMET_Y,
     150,
@@ -718,7 +770,7 @@ function MetadataInitialize() {
     0,
     C_SUBTLE,
     null,
-    fb.TitleFormat("-%playback_time_remaining%"),
+    fb.TitleFormat('-%playback_time_remaining%'),
     2
   );
   var sidebarIndex = 0;
@@ -729,7 +781,7 @@ function MetadataInitialize() {
     META_STARTINGY + META_DELTA * sidebarIndex - 5,
     350,
     50,
-    "Segoe UI Symbol",
+    'Segoe UI Symbol',
     18,
     0,
     C_ACCENT,
@@ -761,7 +813,7 @@ function MetadataInitialize() {
 //  DEBUGGING
 
 function Debugging() {
-  this.log = "";
+  this.log = '';
   var lines = 0;
   var debugColor = RGBA(27, 161, 226, 255);
   var frameCounterColor = RGBA(255, 255, 255, 255);
@@ -769,7 +821,7 @@ function Debugging() {
   var enableTracing = false;
 
   this.Append = function(e) {
-    this.log += e + "\n";
+    this.log += e + '\n';
     lines++;
   };
 
@@ -777,11 +829,19 @@ function Debugging() {
     gr.FillSolidRect(0, 0, 300, 20 * lines, debugColor);
     gr.FillSolidRect(30 * framePos, 0, 30, 5, frameCounterColor);
 
-    gr.GdiDrawText(this.log, gdi.Font("Consolas", 12, 0), C_TITLE, 10, 10, displayManager.windowWidth, 15 * lines);
+    gr.GdiDrawText(
+      this.log,
+      gdi.Font('Consolas', 12, 0),
+      C_TITLE,
+      10,
+      10,
+      displayManager.windowWidth,
+      15 * lines
+    );
 
     framePos = ++framePos % 10;
 
-    this.log = "";
+    this.log = '';
     lines = 0;
   };
 
@@ -793,9 +853,16 @@ function Debugging() {
       var timestampMinute = timestampDate.getMinutes();
       var timestampSecond = timestampDate.getSeconds();
       var timestampMSecond = timestampDate.getMilliseconds();
-      var timestamp = timestampHour + ":" + timestampMinute + ":" + timestampSecond + "." + timestampMSecond;
+      var timestamp =
+        timestampHour +
+        ':' +
+        timestampMinute +
+        ':' +
+        timestampSecond +
+        '.' +
+        timestampMSecond;
 
-      var coalesced = "[" + timestamp + "] " + input;
+      var coalesced = '[' + timestamp + '] ' + input;
 
       console.log(coalesced);
     }
