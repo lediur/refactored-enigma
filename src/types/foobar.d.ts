@@ -592,7 +592,12 @@ declare namespace fb {
     handleOrHandleList: FbMetadbHandle | FbMetadbHandleList,
     flags: ContextCommandFlags
   ): boolean;
-  // function RunMainMenuCommand(command)
+
+  /**
+   * Run a main menu command
+   * @param command A "/" separated command (e.g. "File/Add Location...")
+   */
+  function RunMainMenuCommand(command: string): boolean;
   // function SavePlaylist()
   // function SetDSPPreset(idx)
   // function SetOutputDevice(output, device)
