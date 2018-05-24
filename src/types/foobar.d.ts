@@ -55,6 +55,10 @@ declare interface DragDropEffect extends Number {
   _ddeBrand: any;
 }
 
+declare interface QueryString extends String {
+  _qsBrand: any;
+}
+
 declare interface MenuObj {
   /**
    * @param flags
@@ -479,7 +483,24 @@ declare namespace fb {
    * fb.SetOutputDevice(arr[4].output_id, arr[4].device_id);
    */
   function GetOutputDevices(): string;
-  // function GetQueryItems(handle_list, query)
+
+  /**
+   * Query the list of handles using a foobar2000 query string. Results are unsorted.
+   *
+   * NOTE: Use try/catch to handle invalid queries. An empty handle list will be returned if the query
+   * is valid but there are no results.
+   *
+   * @example
+   * var a = fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
+   *
+   * @example
+   * var b = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
+   */
+  function GetQueryItems(
+    handle_list: FbMetadbHandleList,
+    query: QueryString
+  ): FbMetadbHandleList;
+
   // function GetSelection()
   // function GetSelections([flags])
   // function GetSelectionType()
