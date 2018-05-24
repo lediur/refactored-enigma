@@ -259,7 +259,12 @@ class DisplayManager {
   public StartAnimation() {
     if (!this.animationTimerEngaged) {
       debugging.Trace('[DISPLAY] Started isAnimating...');
-      timer = window.SetInterval(callbacks.on_timer, TIMER_INTERVAL_ANIM);
+
+      if (timer != null) {
+        window.ClearInterval(timer);
+      }
+
+      timer = window.SetInterval(on_timer, TIMER_INTERVAL_ANIM);
       this.animationTimerEngaged = true;
     }
   }
@@ -267,8 +272,13 @@ class DisplayManager {
   public EndAnimation() {
     if (this.animationTimerEngaged) {
       debugging.Trace('[DISPLAY] Stopped isAnimating...');
-      timer = window.SetInterval(callbacks.on_timer, TIMER_INTERVAL_NORMAL);
-      this.animationTimerEngaged = true;
+
+      if (timer != null) {
+        window.ClearInterval(timer);
+      }
+
+      timer = window.SetInterval(on_timer, TIMER_INTERVAL_NORMAL);
+      this.animationTimerEngaged = false;
     }
   }
 
@@ -920,7 +930,11 @@ callbacks.on_paint = (gr: any) => {
   displayManager.height = window.Height;
   displayManager.width = window.Width;
 
+  debugging.Trace('Repainting');
+
   displayManager.Paint(gr);
+
+  debugging.Trace('Finished painting');
 };
 
 callbacks.on_size = () => {
@@ -941,8 +955,8 @@ callbacks.on_playback_starting = (cmd: any, paused: boolean) => {
     justStarted = false;
   }
 
-  if (timerInterval != null) {
-    timer = window.SetInterval(callbacks.on_timer, timerInterval);
+  if (timerInterval != null && timer != null) {
+    timer = window.SetInterval(on_timer, timerInterval);
   }
 };
 
@@ -979,8 +993,9 @@ callbacks.on_mouse_wheel = (delta: number) => {
   }
 };
 
-callbacks.on_timer = () => {
+function on_timer() {
+  debugging.Trace('Timer triggered');
   window.Repaint();
-};
+}
 
 callbacks.on_playback_new_track(fb.GetNowPlaying());
