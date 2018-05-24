@@ -1,0 +1,3 @@
+{
+  "extends": ["tslint:latest", "tslint-consistent-codestyle", "tslint-microsoft-contrib", "tslint-config-prettier"]
+}

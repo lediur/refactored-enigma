@@ -7,8 +7,15 @@
   "author": "Derrick Liu <derrick@derrickliu.com>",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "start": "tsc --watch"
+  },
   "dependencies": {},
   "devDependencies": {
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
+    "tslint-consistent-codestyle": "^1.13.0",
+    "tslint-microsoft-contrib": "^5.0.3",
     "typescript": "^2.8.3"
   }
 }

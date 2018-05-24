@@ -1,0 +1,20 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outFile": "./dist/index.js",
+    "baseUrl": "src",
+    "sourceMap": true,
+    "declaration": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "strict": true,
+    "target": "es5",
+    "lib": ["es6", "dom"]
+  },
+  "exclude": ["node_modules", "build"],
+  "include": ["src/**/*"]
+}
