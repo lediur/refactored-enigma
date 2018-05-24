@@ -6,6 +6,8 @@
 //
 //  Derrick Liu, 2011-2015, CC-BY
 
+import { DT_WORDBREAK } from './types/flags';
+
 //  Initialization
 
 //  System Helper Functions
@@ -110,14 +112,88 @@ let timer: TimerId | null = null;
 const timerInterval: number | null = null;
 const TIMER_INTERVAL_NORMAL = 100;
 const TIMER_INTERVAL_ANIM = 1000 / 60;
-const justStarted = true;
+let justStarted = true;
 
 //  foobar Specific Variables
 const stubImagePath = `${fb.ProfilePath}\\images\\metropanel\\stub.png`;
 
 //  DEBUGGING VARIABLES
-const consoleEnabled = false;
+
+class Debugging {
+  private log = '';
+  private lines = 0;
+  private debugColor = RGBA(27, 161, 226, 255);
+  private frameCounterColor = RGBA(255, 255, 255, 255);
+  private framePos = 0;
+  private enableTracing = false;
+
+  public Append(e: string) {
+    this.log += `${e}\n`;
+    // tslint:disable-next-line:no-increment-decrement
+    this.lines++;
+  }
+
+  public Paint(gr: any) {
+    gr.FillSolidRect(0, 0, 300, 20 * this.lines, this.debugColor);
+    gr.FillSolidRect(30 * this.framePos, 0, 30, 5, this.frameCounterColor);
+
+    gr.GdiDrawText(
+      this.log,
+      gdi.Font('Consolas', 12, 0),
+      C_TITLE,
+      10,
+      10,
+      displayManager.width,
+      15 * this.lines
+    );
+
+    // tslint:disable-next-line:no-increment-decrement
+    this.framePos = ++this.framePos % 10;
+
+    this.log = '';
+    this.lines = 0;
+  }
+
+  public Trace(input: string) {
+    if (this.enableTracing) {
+      const timestampDate = new Date();
+      const coalesced = `[${timestampDate.toISOString()}] ${input}`;
+
+      console.log(coalesced);
+    }
+  }
+}
+
+let consoleEnabled = false;
 const debugging = new Debugging();
+
+class ShuffleStatus {
+  // This method is to emulate functionality for the Eval() method used within InfoString to get
+  // foobar dynamic info. We pass the shuffle icon in our Eval() method.
+
+  public Eval() {
+    // Shuffle icons to be used:
+    //  0: Sequential
+    //  1: Repeat
+    //  2: Shuffle
+    const shuffleIcons = ['➔', '', ''];
+    let currentShuffleIcon;
+
+    switch (plman.PlaybackOrder) {
+      case 2:
+        currentShuffleIcon = shuffleIcons[1];
+        break; // Repeat playback
+      case 4:
+        currentShuffleIcon = shuffleIcons[2];
+        break; // Shuffle playback
+      default:
+        currentShuffleIcon = shuffleIcons[0];
+      // Sequential playback
+    }
+
+    return currentShuffleIcon;
+  }
+}
 
 // Lingering consts
 const shuffleStatus = new ShuffleStatus();
@@ -127,8 +203,8 @@ const MetadataArray: any[] = MetadataInitialize();
 //  Display Manager
 
 class DisplayManager {
-  private width: number;
-  private height: number;
+  public width: number;
+  public height: number;
   private animationTimerEngaged: boolean;
 
   constructor() {
@@ -175,12 +251,11 @@ class DisplayManager {
 
     // DEBUGGING INFORMATION
     if (consoleEnabled) {
-      debugging.Append((this.animationTimerEngaged ? '60' : '10') + ' FPS');
+      debugging.Append(`${this.animationTimerEngaged ? '60' : '10'} FPS`);
       debugging.Append(
-        'PlaybackOrder: ' +
-          plman.PlaybackOrder +
-          ', CurrentShuffleIcon: ' +
-          shuffleStatus.Eval()
+        `PlaybackOrder: ${
+          plman.PlaybackOrder
+        }, CurrentShuffleIcon: ${shuffleStatus.Eval()}`
       );
 
       debugging.Paint(gr);
@@ -265,7 +340,7 @@ class Animation {
     return this.endY - (this.endY - this.initY) * (1 - this.tick);
   }
 
-  private A() {
+  public A() {
     return this.endA - (this.endA - this.initA) * (1 - this.tick);
   }
 
@@ -340,7 +415,7 @@ class AlbumArtManager {
 
   //  When a new song is played, we want to animate the old album art out
   //  and animate in the new album art.
-  private UpdateAlbumArt(metadb: any) {
+  public UpdateAlbumArt(metadb: FbMetadbHandle) {
     debugging.Trace('[ALBUM ART MANAGER] Update Album Art');
     //  Let's clone the AlbumArtImage object for the old song
     //  and place it in a buffer.
@@ -364,8 +439,8 @@ class AlbumArtManager {
     this.currentAlbumArt.Load(metadb);
   }
 
-  private DoneUpdatingAlbumArt(
-    metadb: any,
+  public DoneUpdatingAlbumArt(
+    metadb: FbMetadbHandle,
     art_id: any,
     image: any,
     image_path: any
@@ -404,21 +479,21 @@ const albumArtManager = new AlbumArtManager();
 //  Objects
 
 class AlbumArtImage {
-  private albumArt = null;
+  private albumArt: GdiBitmap | null = null;
 
   private alpha = 255;
-  private X = ALBUMART_X;
-  private Y = ALBUMART_Y);
+  public X = ALBUMART_X;
+  public Y = ALBUMART_Y;
 
-  private animateIn = false;
-  private animateOut = false;
+  public animateIn = false;
+  public animateOut = false;
 
-  private scaleW: number;
-  private scaleH: number;
+  private scaleW: number = 1;
+  private scaleH: number = 1;
   private scale = 0;
 
   public Paint(gr: any) {
-    if (this.albumArt) {
+    if (this.albumArt != null) {
       gr.DrawImage(
         this.albumArt,
         this.X,
@@ -435,7 +510,7 @@ class AlbumArtImage {
 
       if (consoleEnabled) {
         gr.GdiDrawText(
-          Math.floor(this.X) + ' ' + Math.floor(this.Y),
+          `${Math.floor(this.X)} ${Math.floor(this.Y)}`,
           gdi.Font('Consolas', 18, 0),
           C_TITLE,
           this.X + 10,
@@ -445,76 +520,73 @@ class AlbumArtImage {
         );
       }
     }
-  };
+  }
 
-  public Load(metadb: any) {
+  public Load(metadb: FbMetadbHandle) {
     debugging.Trace('[ALBUM ART IMAGE] Load');
     // GetAlbumArtAsync will run in the background
     // When it's finished, on_get_album_art_done() will get called.
     if (metadb) {
       utils.GetAlbumArtAsync(window.ID, metadb, AlbumArtId.front);
     }
-    this.albumArt = gdi.Image(fb.FoobarPath + 'images\\metropanel\\stub.png');
-  };
+    this.albumArt = gdi.Image(`${fb.FoobarPath}\\images\\metropanel\\stub.png`);
+  }
 
-  public UpdateAlbumArt(metadb: any, art_id: any, image: any, image_path: any) {
-    debugging.Trace('[ALBUM ART IMAGE] Received, ImagePath: ' + image_path);
+  public UpdateAlbumArt(
+    metadb: FbMetadbHandle,
+    art_id: any,
+    image: any,
+    image_path: any
+  ) {
+    debugging.Trace(`[ALBUM ART IMAGE] Received, ImagePath: ${image_path}`);
     if (image_path.length > 0) {
       debugging.Trace('[ALBUM ART IMAGE] Image Loaded');
       this.albumArt = image;
     } else {
       debugging.Trace(
-        '[ALBUM ART IMAGE] IMAGE MISSING, STUB AT ' + stubImagePath
+        `[ALBUM ART IMAGE] IMAGE MISSING, STUB AT ${stubImagePath}`
       );
       this.albumArt = gdi.Image(stubImagePath);
     }
 
     //  Keep aspect ratio
     if (this.albumArt) {
-      scaleW = 180 / this.albumArt.Width;
-      scaleH = 180 / this.albumArt.Height;
-      this.scale = Math.min(scaleW, scaleH);
+      this.scaleW = 180 / this.albumArt.Width;
+      this.scaleH = 180 / this.albumArt.Height;
+      this.scale = Math.min(this.scaleW, this.scaleH);
 
-      if (scaleW < scaleH) {
-        Y = (displayManager.width - this.albumArt.height * this.scale) / 2;
-      } else if (scaleW > scaleH) {
-        X = (displayManager.height - this.albumArt.Width * this.scale) / 2;
+      if (this.scaleW < this.scaleH) {
+        this.Y = (displayManager.width - this.albumArt.Height * this.scale) / 2;
+      } else if (this.scaleW > this.scaleH) {
+        this.X = (displayManager.height - this.albumArt.Width * this.scale) / 2;
       }
 
       debugging.Trace('[ALBUM ART IMAGE] Processed');
       debugging.Trace(
-        '[ALBUM ART IMAGE]\tWidth: ' +
-          this.albumArt.Width +
-          ', Height: ' +
+        `[ALBUM ART IMAGE]\tWidth: ${this.albumArt.Width}, Height: ${
           this.albumArt.Height
+        }`
       );
       debugging.Trace(
-        '[ALBUM ART IMAGE]\tScaleW: ' +
-          scaleW +
-          ', ScaleH: ' +
-          scaleH +
-          ', Scale: ' +
-          this.scale
+        `[ALBUM ART IMAGE]\tScaleW: ${this.scaleW}, ScaleH: ${
+          this.scaleH
+        }, Scale: ${this.scale}`
       );
       debugging.Trace(
-        '[ALBUM ART IMAGE]\tWidth *: ' +
-          this.albumArt.Width * this.scale +
-          ', Height *: ' +
-          this.albumArt.Height * this.scale
+        `[ALBUM ART IMAGE]\tWidth *: ${this.albumArt.Width *
+          this.scale}, Height *: ${this.albumArt.Height * this.scale}`
       );
-      debugging.Trace('[ALBUM ART IMAGE]\tAlpha: ' + this.alpha);
+      debugging.Trace(`[ALBUM ART IMAGE]\tAlpha: ${this.alpha}`);
 
       this.albumArt = this.albumArt.Resize(
         this.albumArt.Width * this.scale,
         this.albumArt.Height * this.scale
       );
     }
-  };
+  }
 
-  this.Animate = function() {};
-
-  this.Clone = function() {
-    var out = new AlbumArtImage();
+  public Clone() {
+    const out = new AlbumArtImage();
 
     out.albumArt = this.albumArt;
     out.alpha = this.alpha;
@@ -523,82 +595,97 @@ class AlbumArtImage {
     out.scale = this.scale;
 
     return out;
-  };
+  }
 }
 
-function InfoString(
-  _text,
-  _initX,
-  _initY,
-  _initW,
-  _initH,
-  _fontFace,
-  _fontSize,
-  _fontStyle,
-  _color,
-  _animation,
-  _dynamicInformation,
-  _alignment
-) {
-  //debugging.Trace("[INFOSTRING] Initialize");
-  this.isAnimating = false;
+class InfoString {
+  private isAnimating: boolean;
+  private Text: string;
+  private X: number;
+  private Y: number;
+  private W: number;
+  private H: number;
+  private FontFace: string;
+  private FontSize: number;
+  private FontStyle: FontStyleFlags;
+  private Color: number;
+  private dynamicInfo: Pick<FbTitleFormat, 'Eval'>;
+  private Animation: Animation | null;
+  private alignment: number;
+  private alignmentHex: number = 0;
 
-  this.Text = _text;
-  //debugging.Trace("[INFOSTRING] Text: " + this.Text);
+  constructor(
+    _text: string,
+    _initX: number,
+    _initY: number,
+    _initW: number,
+    _initH: number,
+    _fontFace: string,
+    _fontSize: number,
+    _fontStyle: FontStyleFlags,
+    _color: number,
+    _animation: Animation | null,
+    _dynamicInformation: Pick<FbTitleFormat, 'Eval'>,
+    _alignment: number
+  ) {
+    //debugging.Trace("[INFOSTRING] Initialize");
+    this.isAnimating = false;
 
-  this.X = _initX;
-  this.Y = _initY;
-  //debugging.Trace("[INFOSTRING] X: " + this.X + ", Y: " + this.Y);
+    this.Text = _text;
+    //debugging.Trace("[INFOSTRING] Text: " + this.Text);
 
-  this.W = _initW;
-  this.H = _initH;
+    this.X = _initX;
+    this.Y = _initY;
+    //debugging.Trace("[INFOSTRING] X: " + this.X + ", Y: " + this.Y);
 
-  //debugging.Trace("[INFOSTRING] W: " + this.W + ", H: " + this.H);
+    this.W = _initW;
+    this.H = _initH;
 
-  this.FontFace = _fontFace;
-  this.FontSize = _fontSize;
-  this.FontStyle = _fontStyle;
+    //debugging.Trace("[INFOSTRING] W: " + this.W + ", H: " + this.H);
+
+    this.FontFace = _fontFace;
+    this.FontSize = _fontSize;
+    this.FontStyle = _fontStyle;
+
+    this.Color = _color;
+    this.dynamicInfo = _dynamicInformation;
+    this.Animation = _animation;
+    this.alignment = _alignment;
+  }
 
   //debugging.Trace("[INFOSTRING] FontFace: " + this.FontFace + ", FontSize: " + this.FontSize + ", FontStyle: " + this.FontStyle);
 
-  this.Font = function() {
+  private Font() {
     return gdi.Font(this.FontFace, this.FontSize, this.FontStyle);
-  };
+  }
 
-  this.Color = _color;
-
-  this.alignment = _alignment;
-  var alignmentHex = 0;
-
-  this.dynamicInfo = _dynamicInformation;
-  this.evaledInfo = null;
-  this.Eval = function() {
+  public evaledInfo: string | null = null;
+  public Eval() {
     switch (this.alignment) {
       case 0:
-        alignmentHex = 0x01000000;
+        this.alignmentHex = 0x01000000;
         break;
       case 1:
-        alignmentHex = 0x11000000;
+        this.alignmentHex = 0x11000000;
         break;
       case 2:
-        alignmentHex = 0x21000000;
+        this.alignmentHex = 0x21000000;
         break;
+      default:
+        this.alignmentHex = 0;
     }
 
     // DebugPane.Append("DynamicInfo: " + this.dynamicInfo);
 
     if (this.dynamicInfo != null) {
-      const evalled = this.dynamicInfo.Eval();
       // debugging.Append("DynamicInfoEval: " + evalled);
-      return evalled;
+      return this.dynamicInfo.Eval();
     } else {
       return null;
     }
-  };
+  }
 
-  this.Animation = _animation;
-
-  this.Paint = function(gr) {
+  public Paint(gr: any) {
     this.Animate();
 
     gr.DrawString(
@@ -609,35 +696,36 @@ function InfoString(
       this.Y,
       this.W,
       this.H,
-      DT_WORDBREAK | alignmentHex
+      DT_WORDBREAK | this.alignmentHex
     );
-  };
+  }
 
   //  When a new song is played, we want to animate the old album art out
   //  and animate in the new album art.
-  this.Refresh = function() {
-    debugging.Trace('[INFOSTRING ' + this.Text + ' + ] Refresh');
+  public Refresh() {
+    debugging.Trace(`[INFOSTRING ${this.Text}] Refresh`);
 
     //  Move the album art off frame to be animated in.
     this.X = -380;
 
     this.isAnimating = true;
 
-    this.Animation.tick = 0;
-    this.Animation.timer = 0;
-  };
+    if (this.Animation != null) {
+      this.Animation.reset();
+    }
+  }
 
-  this.Update = function() {
+  public Update() {
     if (this.Animation) {
-      if (this.X != this.Animation.X()) {
+      if (this.X !== this.Animation.X()) {
         this.X = this.Animation.X();
       }
 
-      if (this.Y != this.Animation.Y()) {
+      if (this.Y !== this.Animation.Y()) {
         this.Y = this.Animation.Y();
       }
 
-      if (getAlpha(this.Color) != this.Animation.A()) {
+      if (getAlpha(this.Color) !== this.Animation.A()) {
         setAlpha(this.Color, this.Animation.A());
       }
     }
@@ -645,55 +733,27 @@ function InfoString(
     if (this.evaledInfo != null) {
       this.Text = this.evaledInfo;
     }
-  };
+  }
 
-  this.Animate = function() {
-    if (this.isAnimating) {
+  public Animate() {
+    if (this.isAnimating && this.Animation != null) {
       this.isAnimating = this.Animation.Update();
     }
 
     this.Update();
-  };
-}
-
-function ShuffleStatus() {
-  // This method is to emulate functionality for the Eval() method used within InfoString to get
-  // foobar dynamic info. We pass the shuffle icon in our Eval() method.
-
-  this.Eval = function() {
-    // Shuffle icons to be used:
-    //  0: Sequential
-    //  1: Repeat
-    //  2: Shuffle
-    let shuffleIcons = new Array('➔', '', '');
-    let currentShuffleIcon;
-
-    switch (playbackOrder) {
-      case 2:
-        currentShuffleIcon = shuffleIcons[1];
-        break; // Repeat playback
-      case 4:
-        currentShuffleIcon = shuffleIcons[2];
-        break; // Shuffle playback
-      default:
-        currentShuffleIcon = shuffleIcons[0];
-        break; // Sequential playback
-    }
-
-    return currentShuffleIcon;
-  };
+  }
 }
 
 function MetadataInitialize() {
-  let SidebarTitleArray = new Array(
+  const SidebarTitleArray = [
     'SHUFFLE',
     'CODEC',
     'BITRATE',
     'SAMPRATE',
     'CHANNELS',
-    'HEART'
-  );
-  let SidebarFormatArray = new Array(
+    'HEART',
+  ];
+  const SidebarFormatArray = [
     shuffleStatus,
     fb.TitleFormat('%codec%'),
     fb.TitleFormat(
@@ -703,12 +763,13 @@ function MetadataInitialize() {
       '$div(%samplerate%,1000)$ifgreater($cut($mod(%samplerate%,1000),1),0,.$cut($mod(%samplerate%,1000),1),) kHz'
     ),
     fb.TitleFormat('%channels%'),
-    fb.TitleFormat('$repeat(♥, %LASTFM_LOVED_DB%)')
-  );
-  let MetadataArray = new Array();
+    fb.TitleFormat('$repeat(♥, %LASTFM_LOVED_DB%)'),
+  ];
+
+  const metadataArray = [];
 
   //  Artist
-  MetadataArray[0] = new InfoString(
+  metadataArray[0] = new InfoString(
     '',
     ARTIST_X,
     ARTIST_Y,
@@ -724,7 +785,7 @@ function MetadataInitialize() {
   );
 
   //  Album
-  MetadataArray[1] = new InfoString(
+  metadataArray[1] = new InfoString(
     '',
     ALBUM_X,
     ALBUM_Y,
@@ -740,7 +801,7 @@ function MetadataInitialize() {
   );
 
   //  Title
-  MetadataArray[2] = new InfoString(
+  metadataArray[2] = new InfoString(
     '',
     TITLE_X,
     TITLE_Y,
@@ -756,7 +817,7 @@ function MetadataInitialize() {
   );
 
   //  Time Elapsed
-  MetadataArray[3] = new InfoString(
+  metadataArray[3] = new InfoString(
     '0:00',
     TIMEP_X,
     TIMEP_Y,
@@ -772,7 +833,7 @@ function MetadataInitialize() {
   );
 
   //  Total time
-  MetadataArray[4] = new InfoString(
+  metadataArray[4] = new InfoString(
     '-:--',
     TIMET_X,
     TIMET_Y,
@@ -787,7 +848,7 @@ function MetadataInitialize() {
     2
   );
   //  Remaining time
-  MetadataArray[13] = new InfoString(
+  metadataArray[13] = new InfoString(
     '-:--',
     TIMET_X - 110,
     TIMET_Y,
@@ -801,10 +862,11 @@ function MetadataInitialize() {
     fb.TitleFormat('-%playback_time_remaining%'),
     2
   );
+
   let sidebarIndex = 0;
   //  Shuffle status
-  MetadataArray[5 + sidebarIndex] = new InfoString(
-    shuffleStatus,
+  metadataArray[5 + sidebarIndex] = new InfoString(
+    '',
     META_X,
     META_STARTINGY + META_DELTA * sidebarIndex - 5,
     350,
@@ -818,8 +880,9 @@ function MetadataInitialize() {
     0
   );
 
+  // tslint:disable-next-line:no-increment-decrement
   for (sidebarIndex = 1; sidebarIndex < 7; sidebarIndex++) {
-    MetadataArray[5 + sidebarIndex] = new InfoString(
+    metadataArray[5 + sidebarIndex] = new InfoString(
       SidebarTitleArray[sidebarIndex],
       META_X,
       META_STARTINGY - META_DELTA * sidebarIndex - 10,
@@ -835,71 +898,12 @@ function MetadataInitialize() {
     );
   }
 
-  return MetadataArray;
-}
-
-//  DEBUGGING
-
-function Debugging() {
-  this.log = '';
-  let lines = 0;
-  let debugColor = RGBA(27, 161, 226, 255);
-  let frameCounterColor = RGBA(255, 255, 255, 255);
-  let framePos = 0;
-  let enableTracing = false;
-
-  this.Append = function(e) {
-    this.log += e + '\n';
-    lines++;
-  };
-
-  this.Paint = function(gr) {
-    gr.FillSolidRect(0, 0, 300, 20 * lines, debugColor);
-    gr.FillSolidRect(30 * framePos, 0, 30, 5, frameCounterColor);
-
-    gr.GdiDrawText(
-      this.log,
-      gdi.Font('Consolas', 12, 0),
-      C_TITLE,
-      10,
-      10,
-      displayManager.width,
-      15 * lines
-    );
-
-    framePos = ++framePos % 10;
-
-    this.log = '';
-    lines = 0;
-  };
-
-  this.Trace = function(input) {
-    if (enableTracing) {
-      let timestampDate = new Date();
-
-      let timestampHour = timestampDate.getHours();
-      let timestampMinute = timestampDate.getMinutes();
-      let timestampSecond = timestampDate.getSeconds();
-      let timestampMSecond = timestampDate.getMilliseconds();
-      let timestamp =
-        timestampHour +
-        ':' +
-        timestampMinute +
-        ':' +
-        timestampSecond +
-        '.' +
-        timestampMSecond;
-
-      let coalesced = '[' + timestamp + '] ' + input;
-
-      console.log(coalesced);
-    }
-  };
+  return metadataArray;
 }
 
 //  Callbacks
 
-function on_paint(gr) {
+function on_paint(gr: any) {
   displayManager.height = window.Height;
   displayManager.width = window.Width;
 
@@ -912,24 +916,25 @@ function on_size() {
   window.Repaint();
 }
 
-function on_key_up(key) {
+function on_key_up(key: any) {
   // 0xC0 is the tilde key.
-  if (key == 0xc0) {
+  if (key === 0xc0) {
     consoleEnabled = !consoleEnabled;
   }
 }
 
-function on_playback_starting(cmd, paused) {
+function on_playback_starting(cmd: any, paused: boolean) {
   if (justStarted) {
     justStarted = false;
   }
-  timer = window.SetInterval(on_timer, timerInterval);
+
+  if (timerInterval != null) {
+    timer = window.SetInterval(on_timer, timerInterval);
+  }
 }
 
-function on_playback_new_track(metadb) {
-  for (let index in MetadataArray) {
-    let alignment = 0;
-
+function on_playback_new_track(metadb: FbMetadbHandle) {
+  for (const index of MetadataArray) {
     MetadataArray[index].evaledInfo = MetadataArray[index].Eval();
   }
 
@@ -938,20 +943,21 @@ function on_playback_new_track(metadb) {
   window.Repaint();
 }
 
-function on_playback_order_changed(index) {}
-
-function on_playback_pause(state) {}
-
 function on_playback_stop() {
   window.Repaint();
 }
 
-function on_get_album_art_done(metadb, art_id, image, image_path) {
+function on_get_album_art_done(
+  metadb: FbMetadbHandle,
+  art_id: any,
+  image: any,
+  image_path: any
+) {
   albumArtManager.DoneUpdatingAlbumArt(metadb, art_id, image, image_path);
 }
 
-function on_mouse_wheel(delta) {
-  if (plman.PlaybackOrder == 0 && delta == -1) {
+function on_mouse_wheel(delta: number) {
+  if (plman.PlaybackOrder === 0 && delta === -1) {
     plman.PlaybackOrder = 6;
   }
 

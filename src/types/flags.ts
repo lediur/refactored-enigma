@@ -169,20 +169,6 @@ enum SmoothingMode {
   AntiAlias = 4,
 }
 
-// Used in SetInterpolationMode()
-// For more information, see: http://msdn.microsoft.com/en-us/library/ms534141(VS.85).aspx
-enum InterpolationMode {
-  Invalid = -1,
-  Default = 0,
-  LowQuality = 1,
-  HighQuality = 2,
-  Bilinear = 3,
-  Bicubic = 4,
-  NearestNeighbor = 5,
-  HighQualityBilinear = 6,
-  HighQualityBicubic = 7,
-}
-
 // Used in RotateFlip()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534171(VS.85).aspx
 enum RotateFlipType {

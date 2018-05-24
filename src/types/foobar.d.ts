@@ -858,8 +858,8 @@ whether or not to draw a background. Only useful within Panel Stack Splitter (Co
   // window.Reload(); (void)
   // // reload panel
 
-  // window.Repaint([force]); (void)
-  // // force: boolean, default false.
+  // force: boolean, default false.
+  function Repaint(force?: boolean): void;
 
   // window.RepaintRect(x, y, w, h[, force]); (void)
   // /*

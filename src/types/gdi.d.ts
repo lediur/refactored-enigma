@@ -1,4 +1,4 @@
-interface GdiFont {
+declare interface GdiFont {
   /*
   This will be used in the examples below:
   var my_font = window.GetFontDUI(0);
@@ -32,9 +32,9 @@ interface GdiFont {
   // */
 }
 
-interface GdiBitmap {
-  // Height (int) (read)
-  // Width (int) (read)
+declare interface GdiBitmap {
+  Height: number;
+  Width: number;
   // ApplyAlpha(alpha); (IGdiBitmap)
   // // alpha: Valid values 0-255.
   // ApplyMask(img); (boolean)
@@ -70,8 +70,8 @@ interface GdiBitmap {
   // GetGraphics();
   // // Don't forget to use ReleaseGraphics() after operations on IGdiGraphics interface is done.
   // ReleaseGraphics(IGdiGraphics); (IGdiGraphics)
-  // Resize(w, h[, mode]); (IGdiBitmap)
-  // // mode: default 0. See flags.txt > InterpolationMode
+  Resize(w: number, h: number, mode?: InterpolationMode): GdiBitmap;
+  // mode: default 0. See flags.txt > InterpolationMode
   // RotateFlip(mode); (void)
   // // mode. See flags.txt > RotateFlipType
   // SaveAs(path[, format]); (boolean)
@@ -99,6 +99,18 @@ declare enum FontStyleFlags {
   BoldItalic = 3,
   Underline = 4,
   Strikeout = 8,
+}
+
+declare enum InterpolationMode {
+  Invalid = -1,
+  Default = 0,
+  LowQuality = 1,
+  HighQuality = 2,
+  Bilinear = 3,
+  Bicubic = 4,
+  NearestNeighbor = 5,
+  HighQualityBilinear = 6,
+  HighQualityBicubic = 7,
 }
 
 declare namespace gdi {
