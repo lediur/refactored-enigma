@@ -667,7 +667,7 @@ declare namespace fb {
   function Stop(): void;
 
   function TitleFormat(expression: string): FbTitleFormat;
-  // function VolumeDown()
-  // function VolumeMute()
-  // function VolumeUp()
+  function VolumeDown(): void;
+  function VolumeMute(): void;
+  function VolumeUp(): void;
 }
