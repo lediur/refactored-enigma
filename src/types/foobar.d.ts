@@ -5,7 +5,9 @@ declare enum ReplayGainMode {
   PlaybackOrder,
 }
 
-type FbMetadbHandleList = any;
+type FbMetadbHandleList = FbTodo;
+
+type FbMetadbHandle = FbTodo;
 
 type FbTodo = any;
 
@@ -383,9 +385,21 @@ declare namespace fb {
    * fb.SetDSPPreset(1); // changes to the 2nd entry in the example above
    */
   function GetDSPPresets(): string;
-  // function GetFocusItem([force])
-  // function GetLibraryItems()
-  // function GetLibraryRelativePath(handle)
+
+  /**
+   * @param force use the first item of the active playlist if unable to get focus item
+   */
+  function GetFocusItem(force?: boolean): FbMetadbHandle;
+
+  /**
+   * @returns all media library items
+   */
+  function GetLibraryItems(): FbMetadbHandleList;
+
+  /**
+   * @returns the path to the metadb handle, or an empty string if not in the library
+   */
+  function GetLibraryRelativePath(handle: FbMetadbHandle): string;
   // function GetNowPlaying()
   // function GetOutputDevices()
   // function GetQueryItems(handle_list, query)
