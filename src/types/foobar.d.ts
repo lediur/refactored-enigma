@@ -108,6 +108,24 @@ declare interface MainMenuManager {
   Init(rootName: string): void;
 }
 
+declare interface FbProfiler {
+  /**
+   * Milliseconds elapsed since creation
+   */
+  Time: number;
+
+  Reset(): void;
+
+  /**
+   * Print out component name, version, name, time elapsed
+   *
+   * @example
+   * var test = fb.CreateProfiler("test");
+   * test.Print(); // "JScript Panel v2.0.2: FbProfiler (test): 789 ms"
+   */
+  Print(): void;
+}
+
 declare namespace fb {
   /**
    * Whether the "Always on top" setting is checked
@@ -280,7 +298,8 @@ declare namespace fb {
    */
   function CreateMainMenuManager(): MainMenuManager;
 
-  // function CreateProfiler([name])
+  function CreateProfiler(name?: string): FbProfiler;
+
   // function DoDragDrop(handle_list, effect)
   // function Exit()
   // function GetClipboardContents(window_id)
