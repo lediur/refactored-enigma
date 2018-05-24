@@ -157,6 +157,16 @@ declare enum GetSelectionsFlags {
   ExcludeNotPlaying = 1,
 }
 
+declare enum SelectionType {
+  NoItem = 0,
+  ActivePlaylistSelection,
+  CallerActivePlaylist,
+  PlaylistManager,
+  NowPlaying,
+  KeyboardShortcutList,
+  MediaLibraryViewer,
+}
+
 declare namespace fb {
   /**
    * Whether the "Always on top" setting is checked
@@ -518,7 +528,11 @@ declare namespace fb {
    */
   function GetSelections(flags: GetSelectionsFlags): FbMetadbHandleList;
 
-  // function GetSelectionType()
+  /**
+   * Retrieves the kind of selection
+   */
+  function GetSelectionType(): SelectionType;
+
   // function IsLibraryEnabled()
   // function IsMetadbInMediaLibrary(handle)
   // function LoadPlaylist()
