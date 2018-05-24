@@ -12,6 +12,7 @@
     "experimentalDecorators": true,
     "allowJs": true,
     "strict": true,
+    "module": "amd",
     "target": "es5",
     "lib": ["es6"]
   },
