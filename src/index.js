@@ -797,7 +797,7 @@ function Debugging() {
 
       var coalesced = "[" + timestamp + "] " + input;
 
-      fb.Trace(coalesced);
+      console.log(coalesced);
     }
   };
 }
