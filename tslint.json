@@ -7,6 +7,14 @@
   ],
   "rules": {
     "missing-jsdoc": false,
-    "interface-name": false
+    "interface-name": false,
+    "typedef": false,
+    "variable-name": false,
+    "function-name": false,
+    "binary-expression-operand-order": false,
+    "no-suspicious-comment": false,
+    "newline-before-return": false,
+    "member-ordering": false,
+    "max-classes-per-file": false
   }
 }
