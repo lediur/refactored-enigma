@@ -130,6 +130,13 @@ declare interface FbProfiler {
   Print(): void;
 }
 
+declare interface DSPPreset {
+  active: boolean;
+  name: string;
+}
+
+declare type DSPPresetList = DSPPreset[];
+
 declare namespace fb {
   /**
    * Whether the "Always on top" setting is checked
@@ -249,7 +256,7 @@ declare namespace fb {
    * @param window_id
    * @see {@link https://github.com/lediur/foo_jscript_panel/blob/master/foo_jscript_panel/docs/Interfaces.txt}
    */
-  function CheckClipboardContents(window_id: FbTodo): boolean;
+  function CheckClipboardContents(windowId: FbTodo): boolean;
 
   /**
    * Clears active playlist.
@@ -314,9 +321,68 @@ declare namespace fb {
     effect: DragDropEffect
   ): number;
 
-  // function Exit()
-  // function GetClipboardContents(window_id)
-  // function GetDSPPresets();
+  function Exit(): void;
+
+  /**
+   * Clipboard contents can be handles copied to the clipboard in other components, from fb.CopyHandleListToClipboard or a file selection
+   * from Windows Explorer etc.
+   *
+   * @example
+   *
+   * function on_mouse_rbtn_up(x, y) {
+   *   var ap = plman.ActivePlaylist;
+   *   var menu = window.CreatePopupMenu();
+   *   menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // assume MF_* are already defined
+   *   var idx = menu.TrackPopupMenu(x, y);
+   *   if (idx == 1) {
+   *     var items = fb.GetClipboardContents(window.ID);
+   *     plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), items);
+   *     items.Dispose();
+   *   }
+   *   menu.Dispose();
+   *   return true;
+   * }
+   */
+  function GetClipboardContents(windowId: FbTodo): FbMetadbHandleList;
+
+  /**
+   * foobar2000 v1.4 and above only. Throws a script error on v1.3.
+   * Returns a JSON array in string form so you need to use JSON.parse() on the result.
+   *
+   * @example
+   *
+   * var str = fb.GetDSPPresets();
+   * var arr = JSON.parse(str);
+   * console.log(arr.length); // number of presets
+   * console.log(JSON.stringify(arr, null, 4)); // using JSON.stringify here for displaying the output below
+   *
+   * [
+   *   {
+   *     "active": true,
+   *     "name": "two"
+   *   },
+   *   {
+   *     "active": false,
+   *     "name": "three"
+   *   }
+   * ]
+   *
+   * @example
+   *
+   * var active_name = "";
+   * var str = fb.GetDSPPresets();
+   * var arr = JSON.parse(str);
+   * for (var i = 0; i < arr.length; i++) {
+   *   if (arr[i].active) {
+   *     active_name = arr[i].name;
+   *   }
+   * }
+   * console.log(active_name);
+   *
+   * Simply use the array index to change preset using fb.SetDSPPreset(idx);
+   * fb.SetDSPPreset(1); // changes to the 2nd entry in the example above
+   */
+  function GetDSPPresets(): string;
   // function GetFocusItem([force])
   // function GetLibraryItems()
   // function GetLibraryRelativePath(handle)
