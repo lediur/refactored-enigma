@@ -501,7 +501,12 @@ declare namespace fb {
     query: QueryString
   ): FbMetadbHandleList;
 
-  // function GetSelection()
+  /**
+   * Gets now playing or selected item. What you get will depend on the setting
+   * in "File > Preferences > Display > Selection viewers".
+   */
+  function GetSelection(): FbMetadbHandle | null;
+
   // function GetSelections([flags])
   // function GetSelectionType()
   // function IsLibraryEnabled()
