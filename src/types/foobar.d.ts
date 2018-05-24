@@ -81,7 +81,6 @@ declare interface MenuObj {
 
 declare interface ContextMenuManager {
   /**
-   *
    * @param menuObj
    * @param base_id
    * @param max_id optional as of v2.0.4. Default -1.
@@ -95,6 +94,18 @@ declare interface ContextMenuManager {
   ExecuteByID(id: AppendMenuItemId): boolean;
   InitContext(handle_list: FbMetadbHandleList): void;
   InitNowPlaying(): void;
+}
+
+declare interface MainMenuManager {
+  BuildMenu(menuObj: MenuObj, base_id: AppendMenuItemId, count: number): void;
+  Dispose(): void;
+  ExecuteByID(id: AppendMenuItemId): boolean;
+
+  /**
+   *
+   * @param rootName the internal name of the foobar2000 menu to display (e.g. "file" to display the native foobar2000 File menu)
+   */
+  Init(rootName: string): void;
 }
 
 declare namespace fb {
@@ -262,7 +273,13 @@ declare namespace fb {
    * @returns an empty handle list
    */
   function CreateHandleList(): FbMetadbHandleList;
-  // function CreateMainMenuManager()
+
+  /**
+   * @see {@link samples/basic/MainMenuManager All-In-One.txt}
+   * @see {@link samples/basic/Menu Sample.txt}
+   */
+  function CreateMainMenuManager(): MainMenuManager;
+
   // function CreateProfiler([name])
   // function DoDragDrop(handle_list, effect)
   // function Exit()
