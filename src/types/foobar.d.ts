@@ -618,7 +618,13 @@ declare namespace fb {
   function SetOutputDevice(output: OutputId, device: OutputDeviceId): void;
 
   function ShowConsole(): void;
-  // function ShowLibrarySearchUI(query)
+
+  /**
+   * Opens the library search window with the query prepopulated
+   * @param query A foobar2000 query string
+   */
+  function ShowLibrarySearchUI(query: QueryString): void;
+
   // function ShowPopupMessage(msg[, title])
   // function ShowPreferences()
   // function Stop()
