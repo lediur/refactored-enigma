@@ -139,6 +139,15 @@ declare interface DSPPreset {
 
 declare type DSPPresetList = DSPPreset[];
 
+declare interface OutputDevice {
+  active: boolean;
+  device_id: string;
+  name: string;
+  output_id: string;
+}
+
+declare type OutputDeviceList = OutputDevice[];
+
 declare namespace fb {
   /**
    * Whether the "Always on top" setting is checked
@@ -398,10 +407,78 @@ declare namespace fb {
 
   /**
    * @returns the path to the metadb handle, or an empty string if not in the library
+   * @example <caption>The foobar2000 Media Library is configured to watch "D:\Music" and the
+   * path of the now playing item is "D:\Music\Albums\Artist\Some Album\Some Song.flac"</caption>
+   *
+   * var handle = fb.GetNowPlaying();
+   * console.log(fb.GetLibraryRelativePath(handle)); // Albums\Artist\Some Album\Some Song.flac
+   * NOTE: Do not use this while looping a handle list. Use IFbMetadbHandleList GetLibraryRelativePaths
+   * instead.
    */
   function GetLibraryRelativePath(handle: FbMetadbHandle): string;
-  // function GetNowPlaying()
-  // function GetOutputDevices()
+
+  /**
+   * Gets the handle of the currently playing item
+   */
+  function GetNowPlaying(): FbMetadbHandle;
+
+  /**
+   * foobar2000 v1.4 and above only. Throws a script error on v1.3.
+   * Returns a JSON array in string form so you need to use JSON.parse() on the result.
+   *
+   * @example
+   * var str = fb.GetOutputDevices();
+   * var arr = JSON.parse(str);
+   * console.log(arr.length); // number of devices
+   * console.log(JSON.stringify(arr, null, 4)); // using JSON.stringify here for displaying the output below
+   *
+   * [
+   *   {
+   *     "active": false,
+   *     "device_id": "{5243F9AD-C84F-4723-8194-0788FC021BCC}",
+   *     "name": "Null Output",
+   *     "output_id": "{EEEB07DE-C2C8-44C2-985C-C85856D96DA1}"
+   *   },
+   *   {
+   *     "active": true,
+   *     "device_id": "{00000000-0000-0000-0000-000000000000}",
+   *     "name": "Primary Sound Driver",
+   *     "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+   *   },
+   *   {
+   *     "active": false,
+   *     "device_id": "{1C4EC038-97DB-48E7-9C9A-05FDED46847B}",
+   *     "name": "Speakers (Sound Blaster Z)",
+   *     "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+   *   },
+   *   {
+   *     "active": false,
+   *     "device_id": "{41B86272-3D6C-4A5A-8907-4FE7EBE39E7E}",
+   *     "name": "SPDIF-Out (Sound Blaster Z)",
+   *     "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+   *   },
+   *   {
+   *     "active": false,
+   *     "device_id": "{9CDC0FAE-2870-4AFA-8287-E86099D69076}",
+   *     "name": "3 - BenQ BL3200 (AMD High Definition Audio Device)",
+   *     "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+   *   }
+   * ]
+   *
+   * As you can see, only one of the items in the array has "active"
+   * set to true so that is the device you'd want to display the name of
+   * or mark as selected in a menu.
+   *
+   * To actually change device, you'll need the device_id and output_id
+   * and use them with fb.SetOutputDevice.
+   *
+   * Example:
+   * var str = fb.GetOutputDevices();
+   * var arr = JSON.parse(str);
+   * // Assuming same list from above, switch output to the last device.
+   * fb.SetOutputDevice(arr[4].output_id, arr[4].device_id);
+   */
+  function GetOutputDevices(): string;
   // function GetQueryItems(handle_list, query)
   // function GetSelection()
   // function GetSelections([flags])
