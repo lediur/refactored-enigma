@@ -17,5 +17,11 @@
     "tslint-consistent-codestyle": "^1.13.0",
     "tslint-microsoft-contrib": "^5.0.3",
     "typescript": "^2.8.3"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "useTabs": false,
+    "singleQuote": true,
+    "trailingComma": "es5"
   }
 }
