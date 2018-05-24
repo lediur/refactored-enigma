@@ -152,6 +152,11 @@ declare interface OutputDevice {
 
 declare type OutputDeviceList = OutputDevice[];
 
+declare enum GetSelectionsFlags {
+  Default = 0,
+  ExcludeNotPlaying = 1,
+}
+
 declare namespace fb {
   /**
    * Whether the "Always on top" setting is checked
@@ -507,7 +512,12 @@ declare namespace fb {
    */
   function GetSelection(): FbMetadbHandle | null;
 
-  // function GetSelections([flags])
+  /**
+   * Like GetSelection(), except will always return a valid list.
+   * @param flags
+   */
+  function GetSelections(flags: GetSelectionsFlags): FbMetadbHandleList;
+
   // function GetSelectionType()
   // function IsLibraryEnabled()
   // function IsMetadbInMediaLibrary(handle)
