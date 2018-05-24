@@ -49,6 +49,10 @@ declare interface TrackPopupMenuFlags extends Number {
   _tpmfBrand: any;
 }
 
+declare interface DragDropEffect extends Number {
+  _ddeBrand: any;
+}
+
 declare interface MenuObj {
   /**
    * @param flags
@@ -300,7 +304,16 @@ declare namespace fb {
 
   function CreateProfiler(name?: string): FbProfiler;
 
-  // function DoDragDrop(handle_list, effect)
+  /**
+   *
+   * @param handle_list
+   * @param effect {@link https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop}
+   */
+  function DoDragDrop(
+    handle_list: FbMetadbHandleList,
+    effect: DragDropEffect
+  ): number;
+
   // function Exit()
   // function GetClipboardContents(window_id)
   // function GetDSPPresets();
