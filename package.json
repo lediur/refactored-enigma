@@ -1,0 +1,14 @@
+{
+  "name": "metropanel",
+  "version": "0.0.0",
+  "description": "Playback information panel for foobar2000",
+  "main": "dist/build.js",
+  "repository": "https://github.com/lediur/metropanel",
+  "author": "Derrick Liu <derrick@derrickliu.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^2.8.3"
+  }
+}
