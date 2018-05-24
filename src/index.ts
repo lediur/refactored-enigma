@@ -385,99 +385,6 @@ const newAlbumAnimation = new Animation(-380, ALBUM_Y, ALBUM_X, ALBUM_Y, true);
 
 const newTitleAnimation = new Animation(-380, TITLE_Y, TITLE_X, TITLE_Y, true);
 
-//  Module Managers
-
-class AlbumArtManager {
-  private currentAlbumArt = new AlbumArtImage();
-  private previousAlbumArt: any | null = null;
-
-  private isAnimating = false;
-  private animationIn = newAlbumArtAnimationIn;
-  private animationOut = newAlbumArtAnimationOut;
-
-  public Paint(gr: any) {
-    this.Animate();
-
-    if (this.currentAlbumArt) {
-      //debugging.Trace("[ALBUM ART MANAGER] Painting Current Album Art.");
-      this.currentAlbumArt.Paint(gr);
-    }
-
-    if (this.previousAlbumArt != null && this.isAnimating) {
-      //debugging.Trace("[ALBUM ART MANAGER] Painting Previous Album Art.");
-      this.previousAlbumArt.Paint(gr);
-    }
-
-    if (consoleEnabled) {
-      debugging.Append(`ALBUM ART isAnimating: ${this.isAnimating}`);
-    }
-  }
-
-  //  When a new song is played, we want to animate the old album art out
-  //  and animate in the new album art.
-  public UpdateAlbumArt(metadb: FbMetadbHandle) {
-    debugging.Trace('[ALBUM ART MANAGER] Update Album Art');
-    //  Let's clone the AlbumArtImage object for the old song
-    //  and place it in a buffer.
-    this.previousAlbumArt = this.currentAlbumArt.Clone();
-
-    //  Move the album art off frame to be animated in.
-    this.currentAlbumArt.X = -180;
-
-    if (this.previousAlbumArt != null) {
-      debugging.Trace('[ALBUM ART MANAGER] Previous album art cloned.');
-      this.previousAlbumArt.X = 20;
-
-      this.isAnimating = true;
-
-      this.animationIn.reset();
-      this.animationOut.reset();
-    }
-
-    //  Now, load the AlbumArtImage for the current song. It will be
-    //  updated asynchronously.
-    this.currentAlbumArt.Load(metadb);
-  }
-
-  public DoneUpdatingAlbumArt(
-    metadb: FbMetadbHandle,
-    art_id: any,
-    image: any,
-    image_path: any
-  ) {
-    this.currentAlbumArt.UpdateAlbumArt(metadb, art_id, image, image_path);
-  }
-
-  public Update() {
-    if (this.isAnimating) {
-      if (this.currentAlbumArt) {
-        this.currentAlbumArt.X = this.animationIn.X();
-      }
-
-      if (this.previousAlbumArt) {
-        this.previousAlbumArt.X = this.animationOut.X();
-      }
-    }
-  }
-
-  public Animate() {
-    if (this.isAnimating) {
-      this.isAnimating = this.animationIn.Update();
-      this.isAnimating = this.animationOut.Update();
-    }
-
-    this.currentAlbumArt.animateIn = this.isAnimating;
-    this.previousAlbumArt.animateOut = this.isAnimating;
-
-    displayManager.AnimationLatch(this.isAnimating);
-    this.Update();
-  }
-}
-
-const albumArtManager = new AlbumArtManager();
-
-//  Objects
-
 class AlbumArtImage {
   private albumArt: GdiBitmap | null = null;
 
@@ -597,6 +504,97 @@ class AlbumArtImage {
     return out;
   }
 }
+
+//  Module Managers
+
+class AlbumArtManager {
+  private currentAlbumArt = new AlbumArtImage();
+  private previousAlbumArt: any | null = null;
+
+  private isAnimating = false;
+  private animationIn = newAlbumArtAnimationIn;
+  private animationOut = newAlbumArtAnimationOut;
+
+  public Paint(gr: any) {
+    this.Animate();
+
+    if (this.currentAlbumArt) {
+      //debugging.Trace("[ALBUM ART MANAGER] Painting Current Album Art.");
+      this.currentAlbumArt.Paint(gr);
+    }
+
+    if (this.previousAlbumArt != null && this.isAnimating) {
+      //debugging.Trace("[ALBUM ART MANAGER] Painting Previous Album Art.");
+      this.previousAlbumArt.Paint(gr);
+    }
+
+    if (consoleEnabled) {
+      debugging.Append(`ALBUM ART isAnimating: ${this.isAnimating}`);
+    }
+  }
+
+  //  When a new song is played, we want to animate the old album art out
+  //  and animate in the new album art.
+  public UpdateAlbumArt(metadb: FbMetadbHandle) {
+    debugging.Trace('[ALBUM ART MANAGER] Update Album Art');
+    //  Let's clone the AlbumArtImage object for the old song
+    //  and place it in a buffer.
+    this.previousAlbumArt = this.currentAlbumArt.Clone();
+
+    //  Move the album art off frame to be animated in.
+    this.currentAlbumArt.X = -180;
+
+    if (this.previousAlbumArt != null) {
+      debugging.Trace('[ALBUM ART MANAGER] Previous album art cloned.');
+      this.previousAlbumArt.X = 20;
+
+      this.isAnimating = true;
+
+      this.animationIn.reset();
+      this.animationOut.reset();
+    }
+
+    //  Now, load the AlbumArtImage for the current song. It will be
+    //  updated asynchronously.
+    this.currentAlbumArt.Load(metadb);
+  }
+
+  public DoneUpdatingAlbumArt(
+    metadb: FbMetadbHandle,
+    art_id: any,
+    image: any,
+    image_path: any
+  ) {
+    this.currentAlbumArt.UpdateAlbumArt(metadb, art_id, image, image_path);
+  }
+
+  public Update() {
+    if (this.isAnimating) {
+      if (this.currentAlbumArt) {
+        this.currentAlbumArt.X = this.animationIn.X();
+      }
+
+      if (this.previousAlbumArt) {
+        this.previousAlbumArt.X = this.animationOut.X();
+      }
+    }
+  }
+
+  public Animate() {
+    if (this.isAnimating) {
+      this.isAnimating = this.animationIn.Update();
+      this.isAnimating = this.animationOut.Update();
+    }
+
+    this.currentAlbumArt.animateIn = this.isAnimating;
+    this.previousAlbumArt.animateOut = this.isAnimating;
+
+    displayManager.AnimationLatch(this.isAnimating);
+    this.Update();
+  }
+}
+
+const albumArtManager = new AlbumArtManager();
 
 class InfoString {
   private isAnimating: boolean;
@@ -766,137 +764,155 @@ function MetadataInitialize() {
     fb.TitleFormat('$repeat(♥, %LASTFM_LOVED_DB%)'),
   ];
 
+  // tslint:disable-next-line:no-unnecessary-local-variable
   const metadataArray = [];
 
   //  Artist
-  metadataArray[0] = new InfoString(
-    '',
-    ARTIST_X,
-    ARTIST_Y,
-    1999,
-    60,
-    normalFont,
-    30,
-    0,
-    C_ARTIST,
-    newArtistAnimation,
-    fb.TitleFormat('%artist%'),
-    0
+  metadataArray.push(
+    new InfoString(
+      '',
+      ARTIST_X,
+      ARTIST_Y,
+      1999,
+      60,
+      normalFont,
+      30,
+      0,
+      C_ARTIST,
+      newArtistAnimation,
+      fb.TitleFormat('%artist%'),
+      0
+    )
   );
 
   //  Album
-  metadataArray[1] = new InfoString(
-    '',
-    ALBUM_X,
-    ALBUM_Y,
-    1999,
-    50,
-    normalFont,
-    24,
-    0,
-    C_ALBUM,
-    newAlbumAnimation,
-    fb.TitleFormat('%album%'),
-    0
+  metadataArray.push(
+    new InfoString(
+      '',
+      ALBUM_X,
+      ALBUM_Y,
+      1999,
+      50,
+      normalFont,
+      24,
+      0,
+      C_ALBUM,
+      newAlbumAnimation,
+      fb.TitleFormat('%album%'),
+      0
+    )
   );
 
   //  Title
-  metadataArray[2] = new InfoString(
-    '',
-    TITLE_X,
-    TITLE_Y,
-    1999,
-    50,
-    normalFont,
-    24,
-    0,
-    C_TITLE,
-    newTitleAnimation,
-    fb.TitleFormat('%title%'),
-    0
+  metadataArray.push(
+    new InfoString(
+      '',
+      TITLE_X,
+      TITLE_Y,
+      1999,
+      50,
+      normalFont,
+      24,
+      0,
+      C_TITLE,
+      newTitleAnimation,
+      fb.TitleFormat('%title%'),
+      0
+    )
   );
 
   //  Time Elapsed
-  metadataArray[3] = new InfoString(
-    '0:00',
-    TIMEP_X,
-    TIMEP_Y,
-    150,
-    50,
-    normalFont,
-    20,
-    0,
-    C_TIME,
-    null,
-    fb.TitleFormat('%playback_time%'),
-    0
+  metadataArray.push(
+    new InfoString(
+      '0:00',
+      TIMEP_X,
+      TIMEP_Y,
+      150,
+      50,
+      normalFont,
+      20,
+      0,
+      C_TIME,
+      null,
+      fb.TitleFormat('%playback_time%'),
+      0
+    )
   );
 
   //  Total time
-  metadataArray[4] = new InfoString(
-    '-:--',
-    TIMET_X,
-    TIMET_Y,
-    150,
-    50,
-    normalFont,
-    20,
-    0,
-    C_ACCENT,
-    null,
-    fb.TitleFormat('%length%'),
-    2
-  );
-  //  Remaining time
-  metadataArray[13] = new InfoString(
-    '-:--',
-    TIMET_X - 110,
-    TIMET_Y,
-    150,
-    50,
-    normalFont,
-    20,
-    0,
-    C_SUBTLE,
-    null,
-    fb.TitleFormat('-%playback_time_remaining%'),
-    2
+  metadataArray.push(
+    new InfoString(
+      '-:--',
+      TIMET_X,
+      TIMET_Y,
+      150,
+      50,
+      normalFont,
+      20,
+      0,
+      C_ACCENT,
+      null,
+      fb.TitleFormat('%length%'),
+      2
+    )
   );
 
   let sidebarIndex = 0;
   //  Shuffle status
-  metadataArray[5 + sidebarIndex] = new InfoString(
-    '',
-    META_X,
-    META_STARTINGY + META_DELTA * sidebarIndex - 5,
-    350,
-    50,
-    'Segoe UI Symbol',
-    18,
-    0,
-    C_ACCENT,
-    null,
-    SidebarFormatArray[sidebarIndex],
-    0
+  metadataArray.push(
+    new InfoString(
+      '',
+      META_X,
+      META_STARTINGY + META_DELTA * sidebarIndex - 5,
+      350,
+      50,
+      'Segoe UI Symbol',
+      18,
+      0,
+      C_ACCENT,
+      null,
+      SidebarFormatArray[sidebarIndex],
+      0
+    )
   );
 
   // tslint:disable-next-line:no-increment-decrement
   for (sidebarIndex = 1; sidebarIndex < 7; sidebarIndex++) {
-    metadataArray[5 + sidebarIndex] = new InfoString(
-      SidebarTitleArray[sidebarIndex],
-      META_X,
-      META_STARTINGY - META_DELTA * sidebarIndex - 10,
-      100,
+    metadataArray.push(
+      new InfoString(
+        SidebarTitleArray[sidebarIndex],
+        META_X,
+        META_STARTINGY - META_DELTA * sidebarIndex - 10,
+        100,
+        50,
+        normalFont,
+        14,
+        0,
+        C_SUBTLE,
+        null,
+        SidebarFormatArray[sidebarIndex],
+        0
+      )
+    );
+  }
+
+  //  Remaining time
+  metadataArray.push(
+    new InfoString(
+      '-:--',
+      TIMET_X - 110,
+      TIMET_Y,
+      150,
       50,
       normalFont,
-      14,
+      20,
       0,
       C_SUBTLE,
       null,
-      SidebarFormatArray[sidebarIndex],
-      0
-    );
-  }
+      fb.TitleFormat('-%playback_time_remaining%'),
+      2
+    )
+  );
 
   return metadataArray;
 }

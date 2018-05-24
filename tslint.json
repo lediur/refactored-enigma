@@ -5,6 +5,7 @@
     "tslint-microsoft-contrib",
     "tslint-config-prettier"
   ],
+  "defaultSeverity": "error",
   "rules": {
     "missing-jsdoc": false,
     "interface-name": false,
