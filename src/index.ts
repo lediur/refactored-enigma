@@ -6,6 +6,7 @@
 //
 //  Derrick Liu, 2011-2015, CC-BY
 
+import { rgb, rgba, getAlpha, setAlpha } from './colors';
 import { DT_WORDBREAK } from './types/flags';
 
 //  Initialization
@@ -23,48 +24,7 @@ const AlbumArtId = {
   icon: 3,
 };
 
-function RGB(r: number, g: number, b: number): number {
-  return 0xff000000 | (r << 16) | (g << 8) | b;
-}
-function RGBA(r: number, g: number, b: number, a: number): number {
-  return (a << 24) | (r << 16) | (g << 8) | b;
-}
 
-function getAlpha(color: number): number {
-  return (color >> 24) & 0xff;
-}
-function getRed(color: number): number {
-  return (color >> 16) & 0xff;
-}
-function getGreen(color: number): number {
-  return (color >> 8) & 0xff;
-}
-function getBlue(color: number): number {
-  return color & 0xff;
-}
-
-function setAlpha(color: number, a: number): number {
-  return (color & 0x00ffffff) | (a << 24);
-}
-function setRed(color: number, r: number): number {
-  return (color & 0xff00ffff) | (r << 16);
-}
-function setGreen(color: number, g: number): number {
-  return (color & 0xffff00ff) | (g << 8);
-}
-function setBlue(color: number, b: number): number {
-  return (color & 0xffffff00) | b;
-}
-
-function clamp(num: number, low: number, high: number): number {
-  if (num < low) {
-    return low;
-  } else if (num > high) {
-    return high;
-  } else {
-    return num;
-  }
-}
 
 //  Global Variables
 
@@ -92,9 +52,9 @@ const META_STARTINGY = 308;
 const META_DELTA = 20;
 
 //  Color Information
-const C_BACKGROUND = RGB(240, 240, 240);
-const C_FOREGROUND = RGB(10, 10, 10);
-const C_ACCENT = RGB(0, 174, 255);
+const C_BACKGROUND = rgb(240, 240, 240);
+const C_FOREGROUND = rgb(10, 10, 10);
+const C_ACCENT = rgb(0, 174, 255);
 const C_SUBTLE = C_FOREGROUND & (100 << 24);
 const C_ARTIST = C_FOREGROUND;
 const C_ALBUM = C_FOREGROUND;
@@ -122,8 +82,8 @@ const stubImagePath = `${fb.ProfilePath}\\images\\metropanel\\stub.png`;
 class Debugging {
   private log = '';
   private lines = 0;
-  private debugColor = RGBA(27, 161, 226, 255);
-  private frameCounterColor = RGBA(255, 255, 255, 255);
+  private debugColor = rgba(27, 161, 226, 255);
+  private frameCounterColor = rgba(255, 255, 255, 255);
   private framePos = 0;
   private enableTracing = false;
 
