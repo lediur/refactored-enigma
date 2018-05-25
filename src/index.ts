@@ -6,8 +6,10 @@
 //
 //  Derrick Liu, 2011-2015, CC-BY
 
-import { rgb, rgba, getAlpha, setAlpha } from './colors';
+import { getAlpha, rgb, rgba, setAlpha } from './colors';
 import { DT_WORDBREAK } from './types/flags';
+import store from './store';
+import { handleNewTrack } from './nowPlaying';
 
 //  Initialization
 
@@ -23,8 +25,6 @@ const AlbumArtId = {
   disc: 2,
   icon: 3,
 };
-
-
 
 //  Global Variables
 
@@ -178,13 +178,13 @@ class DisplayManager {
     gr.FillSolidRect(0, 0, this.width, this.height, C_BACKGROUND);
 
     if (MetadataArray) {
-      MetadataArray.forEach((elem, index) => (elem.evaledInfo = elem.Eval()));
+      updateMetadata();
     }
 
     // Draw metadata.
     if (MetadataArray) {
       //debugging.Trace("[DISPLAY SUBSYSTEM] Drawing MetadataArray: " + MetadataArray);
-      MetadataArray.forEach((elem, index) => (elem.evaledInfo = elem.Eval()));
+      MetadataArray.forEach((elem, index) => elem.Paint(gr));
     }
 
     // Draw progress bar.
@@ -641,7 +641,9 @@ class InfoString {
 
     if (this.dynamicInfo != null) {
       // debugging.Append("DynamicInfoEval: " + evalled);
-      return this.dynamicInfo.Eval();
+      const evalled = this.dynamicInfo.Eval();
+      debugging.Trace(evalled);
+      return evalled;
     } else {
       return null;
     }
@@ -707,7 +709,7 @@ class InfoString {
 }
 
 // tslint:disable-next-line:no-any
-const MetadataArray: any[] = MetadataInitialize();
+const MetadataArray: InfoString[] = MetadataInitialize();
 
 function MetadataInitialize() {
   const SidebarTitleArray = [
@@ -718,6 +720,7 @@ function MetadataInitialize() {
     'CHANNELS',
     'HEART',
   ];
+
   const SidebarFormatArray = [
     shuffleStatus,
     fb.TitleFormat('%codec%'),
@@ -732,10 +735,7 @@ function MetadataInitialize() {
   ];
 
   // tslint:disable-next-line:no-unnecessary-local-variable
-  const metadataArray = [];
-
-  //  Artist
-  metadataArray.push(
+  const metadataArray = [
     new InfoString(
       '',
       ARTIST_X,
@@ -749,11 +749,7 @@ function MetadataInitialize() {
       newArtistAnimation,
       fb.TitleFormat('%artist%'),
       0
-    )
-  );
-
-  //  Album
-  metadataArray.push(
+    ),
     new InfoString(
       '',
       ALBUM_X,
@@ -767,11 +763,7 @@ function MetadataInitialize() {
       newAlbumAnimation,
       fb.TitleFormat('%album%'),
       0
-    )
-  );
-
-  //  Title
-  metadataArray.push(
+    ),
     new InfoString(
       '',
       TITLE_X,
@@ -785,11 +777,7 @@ function MetadataInitialize() {
       newTitleAnimation,
       fb.TitleFormat('%title%'),
       0
-    )
-  );
-
-  //  Time Elapsed
-  metadataArray.push(
+    ),
     new InfoString(
       '0:00',
       TIMEP_X,
@@ -803,11 +791,7 @@ function MetadataInitialize() {
       null,
       fb.TitleFormat('%playback_time%'),
       0
-    )
-  );
-
-  //  Total time
-  metadataArray.push(
+    ),
     new InfoString(
       '-:--',
       TIMET_X,
@@ -821,16 +805,11 @@ function MetadataInitialize() {
       null,
       fb.TitleFormat('%length%'),
       2
-    )
-  );
-
-  let sidebarIndex = 0;
-  //  Shuffle status
-  metadataArray.push(
+    ),
     new InfoString(
       '',
       META_X,
-      META_STARTINGY + META_DELTA * sidebarIndex - 5,
+      META_STARTINGY - 5,
       350,
       50,
       'Segoe UI Symbol',
@@ -838,13 +817,27 @@ function MetadataInitialize() {
       0,
       C_ACCENT,
       null,
-      SidebarFormatArray[sidebarIndex],
+      SidebarFormatArray[0],
       0
-    )
-  );
+    ),
+    new InfoString(
+      '-:--',
+      TIMET_X - 110,
+      TIMET_Y,
+      150,
+      50,
+      normalFont,
+      20,
+      0,
+      C_SUBTLE,
+      null,
+      fb.TitleFormat('-%playback_time_remaining%'),
+      2
+    ),
+  ];
 
   // tslint:disable-next-line:no-increment-decrement
-  for (sidebarIndex = 1; sidebarIndex < 7; sidebarIndex++) {
+  for (let sidebarIndex = 1; sidebarIndex < 7; sidebarIndex++) {
     metadataArray.push(
       new InfoString(
         SidebarTitleArray[sidebarIndex],
@@ -863,25 +856,13 @@ function MetadataInitialize() {
     );
   }
 
-  //  Remaining time
-  metadataArray.push(
-    new InfoString(
-      '-:--',
-      TIMET_X - 110,
-      TIMET_Y,
-      150,
-      50,
-      normalFont,
-      20,
-      0,
-      C_SUBTLE,
-      null,
-      fb.TitleFormat('-%playback_time_remaining%'),
-      2
-    )
-  );
-
   return metadataArray;
+}
+
+function updateMetadata() {
+  for (let i = 0; i < MetadataArray.length; i++) {
+    MetadataArray[i].evaledInfo = MetadataArray[i].Eval();
+  }
 }
 
 //  Callbacks
@@ -921,7 +902,7 @@ callbacks.on_playback_starting = (cmd: any, paused: boolean) => {
 };
 
 callbacks.on_playback_new_track = (metadb: FbMetadbHandle) => {
-  MetadataArray.forEach((elem, index) => (elem.evaledInfo = elem.Eval()));
+  handleNewTrack(store);
 
   albumArtManager.UpdateAlbumArt(metadb);
   CollectGarbage();
