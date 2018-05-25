@@ -61,15 +61,6 @@ export const TPM_VERNEGANIMATION: TrackPopupMenuFlags = <any>0x2000;
 export const TPM_NOANIMATION: TrackPopupMenuFlags = <any>0x4000;
 /* tslint:enable:no-any */
 
-// Mask for mouse callbacks
-export const MK_LBUTTON: number = 0x0001;
-export const MK_RBUTTON: number = 0x0002;
-export const MK_SHIFT: number = 0x0004; // The SHIFT key is down.
-export const MK_CONTROL: number = 0x0008; // The CTRL key is down.
-export const MK_MBUTTON: number = 0x0010;
-export const MK_XBUTTON1: number = 0x0020;
-export const MK_XBUTTON2: number = 0x0040;
-
 // Used in window.SetCursor()
 export const IDC_ARROW: number = 32512;
 export const IDC_IBEAM: number = 32513;
