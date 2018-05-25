@@ -6,7 +6,7 @@ const streamqueue = require('streamqueue');
 const concat = require('gulp-concat');
 const buffer = require('vinyl-buffer');
 
-gulp.task('default', function() {
+function build() {
   var config = {
     src: 'src/index.ts',
     filename: 'index.js',
@@ -34,7 +34,15 @@ gulp.task('default', function() {
   const preShim = gulp.src('shims/preshim.js');
   const postShim = gulp.src('shims/postshim.js');
 
-  streamqueue({ objectMode: true }, preShim, mainStream, postShim)
+  return streamqueue({ objectMode: true }, preShim, mainStream, postShim)
     .pipe(concat(config.filename))
     .pipe(gulp.dest(config.dest));
+}
+
+gulp.task('watch', function() {
+  return gulp.watch('src/**/*', ['build']);
+});
+
+gulp.task('build', function() {
+  build();
 });
