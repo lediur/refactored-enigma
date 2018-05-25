@@ -5,6 +5,7 @@ const source = require('vinyl-source-stream');
 const streamqueue = require('streamqueue');
 const concat = require('gulp-concat');
 const buffer = require('vinyl-buffer');
+const header = require('gulp-header');
 
 function build() {
   var config = {
@@ -33,14 +34,27 @@ function build() {
 
   const preShim = gulp.src('shims/preshim.js');
   const postShim = gulp.src('shims/postshim.js');
+  const headerComment = `// Built ${new Date().toISOString()}\n`;
 
   return streamqueue({ objectMode: true }, preShim, mainStream, postShim)
     .pipe(concat(config.filename))
+    .pipe(header(headerComment))
+    .on('error', swallowError)
     .pipe(gulp.dest(config.dest));
 }
 
+function swallowError(error) {
+  console.log(error);
+}
+
 gulp.task('watch', function() {
-  return gulp.watch('src/**/*', ['build']);
+  gulp.watch(
+    ['src/**/*.ts', 'Gulpfile.js', 'package.json'],
+    { ignoreInitial: false },
+    () => {
+      build();
+    }
+  );
 });
 
 gulp.task('build', function() {
