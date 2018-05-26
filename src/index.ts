@@ -69,7 +69,7 @@ const semilightFont = 'Segoe UI Semilight';
 
 //  Timer
 let timer: TimerId | null = null;
-const timerInterval: number | null = null;
+let timerInterval: number | null = null;
 const TIMER_INTERVAL_NORMAL = 100;
 const TIMER_INTERVAL_ANIM = 1000 / 60;
 let justStarted = true;
@@ -85,7 +85,7 @@ class Debugging {
   private debugColor = rgba(27, 161, 226, 255);
   private frameCounterColor = rgba(255, 255, 255, 255);
   private framePos = 0;
-  private enableTracing = false;
+  private frameCounter = 0;
 
   public Append(e: string) {
     this.log += `${e}\n`;
@@ -94,8 +94,39 @@ class Debugging {
   }
 
   public Paint(gr: any) {
-    gr.FillSolidRect(0, 0, 300, 20 * this.lines, this.debugColor);
-    gr.FillSolidRect(30 * this.framePos, 0, 30, 5, this.frameCounterColor);
+    const fps = timerInterval != null ? 1000 / timerInterval : 1;
+
+    this.frameCounter++;
+
+    const width = timerInterval != null ? 300 / fps : 300;
+    gr.FillSolidRect(0, 0, 300, 20 * this.lines + 20, this.debugColor);
+    gr.FillSolidRect(
+      width * this.framePos,
+      0,
+      width,
+      5,
+      this.frameCounterColor
+    );
+
+    gr.GdiDrawText(
+      fps,
+      gdi.Font('Consolas', 8, 0),
+      C_TITLE,
+      5,
+      10,
+      displayManager.width,
+      15 * this.lines
+    );
+
+    gr.GdiDrawText(
+      this.frameCounter,
+      gdi.Font('Consolas', 8, 0),
+      C_TITLE,
+      5,
+      270,
+      displayManager.width,
+      15 * this.lines
+    );
 
     gr.GdiDrawText(
       this.log,
@@ -108,7 +139,7 @@ class Debugging {
     );
 
     // tslint:disable-next-line:no-increment-decrement
-    this.framePos = ++this.framePos % 10;
+    this.framePos = ++this.framePos % fps;
 
     this.log = '';
     this.lines = 0;
@@ -221,20 +252,23 @@ class DisplayManager {
       }
 
       timer = window.SetInterval(on_timer, TIMER_INTERVAL_ANIM);
+      timerInterval = TIMER_INTERVAL_ANIM;
       this.animationTimerEngaged = true;
     }
   }
 
   public EndAnimation() {
     if (this.animationTimerEngaged) {
+      this.animationTimerEngaged = false;
       debugging.Trace('[DISPLAY] Stopped isAnimating...');
 
       if (timer != null) {
         window.ClearInterval(timer);
       }
 
+      // tslint:disable-next-line:no-unnecessary-callback-wrapper
       timer = window.SetInterval(on_timer, TIMER_INTERVAL_NORMAL);
-      this.animationTimerEngaged = false;
+      timerInterval = TIMER_INTERVAL_NORMAL;
     }
   }
 
@@ -609,16 +643,7 @@ class InfoString {
     this.dynamicInfo = _dynamicInformation;
     this.Animation = _animation;
     this.alignment = _alignment;
-  }
 
-  //debugging.Trace("[INFOSTRING] FontFace: " + this.FontFace + ", FontSize: " + this.FontSize + ", FontStyle: " + this.FontStyle);
-
-  private Font() {
-    return gdi.Font(this.FontFace, this.FontSize, this.FontStyle);
-  }
-
-  public evaledInfo: string | null = null;
-  public Eval() {
     switch (this.alignment) {
       case 0:
         this.alignmentHex = 0x01000000;
@@ -632,14 +657,15 @@ class InfoString {
       default:
         this.alignmentHex = 0;
     }
+  }
+  private Font() {
+    return gdi.Font(this.FontFace, this.FontSize, this.FontStyle);
+  }
 
-    // DebugPane.Append("DynamicInfo: " + this.dynamicInfo);
-
+  public evaledInfo: string | null = null;
+  public Eval() {
     if (this.dynamicInfo != null) {
-      // debugging.Append("DynamicInfoEval: " + evalled);
-      const evalled = this.dynamicInfo.Eval();
-      debugging.Trace(evalled);
-      return evalled;
+      return this.dynamicInfo.Eval();
     } else {
       return null;
     }
@@ -873,11 +899,7 @@ callbacks.on_paint = (gr: any) => {
   displayManager.height = window.Height;
   displayManager.width = window.Width;
 
-  debugging.Trace('Repainting');
-
   displayManager.Paint(gr);
-
-  debugging.Trace('Finished painting');
 };
 
 callbacks.on_size = () => {
@@ -896,10 +918,6 @@ callbacks.on_key_up = (key: any) => {
 callbacks.on_playback_starting = (cmd: any, paused: boolean) => {
   if (justStarted) {
     justStarted = false;
-  }
-
-  if (timerInterval != null && timer != null) {
-    timer = window.SetInterval(on_timer, timerInterval);
   }
 };
 
@@ -950,7 +968,6 @@ callbacks.on_playback_time = () => {
 };
 
 function on_timer() {
-  debugging.Trace('Timer triggered');
   window.Repaint();
 }
 
