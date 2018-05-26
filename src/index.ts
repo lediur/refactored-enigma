@@ -177,10 +177,6 @@ class DisplayManager {
     // Background fill
     gr.FillSolidRect(0, 0, this.width, this.height, C_BACKGROUND);
 
-    if (MetadataArray) {
-      updateMetadata();
-    }
-
     // Draw metadata.
     if (MetadataArray) {
       //debugging.Trace("[DISPLAY SUBSYSTEM] Drawing MetadataArray: " + MetadataArray);
@@ -865,6 +861,12 @@ function updateMetadata() {
   }
 }
 
+function trackInfoUpdated() {
+  if (MetadataArray) {
+    updateMetadata();
+  }
+}
+
 //  Callbacks
 
 callbacks.on_paint = (gr: any) => {
@@ -905,7 +907,8 @@ callbacks.on_playback_new_track = (metadb: FbMetadbHandle) => {
   handleNewTrack(store);
 
   albumArtManager.UpdateAlbumArt(metadb);
-  CollectGarbage();
+  trackInfoUpdated();
+
   window.Repaint();
 };
 
@@ -932,6 +935,18 @@ callbacks.on_mouse_wheel = (delta: number) => {
   if (plman.PlaybackOrder > 4) {
     plman.PlaybackOrder = 0;
   }
+};
+
+callbacks.on_playback_dynamic_info = () => {
+  trackInfoUpdated();
+};
+
+callbacks.on_playback_dynamic_info_track = () => {
+  trackInfoUpdated();
+};
+
+callbacks.on_playback_time = () => {
+  trackInfoUpdated();
 };
 
 function on_timer() {
