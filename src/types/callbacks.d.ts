@@ -66,31 +66,31 @@ declare enum MouseMask {
  * We work around that with some prefix and suffix shims. Hacks all around.
  * @see {@link https://raw.githubusercontent.com/marc2k3/foo_jscript_panel/master/foo_jscript_panel/docs/Callbacks.txt}
  */
-declare namespace callbacks {
+declare interface Callbacks {
   /**
    * Called when "Always On Top" state changes from using the menu, Alt + A, fb.AlwaysOnTop, etc
    * @param state the current "always on top" state
    */
-  function on_always_on_top_changed(state: boolean): void;
+  on_always_on_top_changed(state: boolean): void;
 
   /**
    * In order to use this callback, use window.DlgCode(DLGC_WANTCHARS);
    * @see {@link flags.ts}
    * @param code UTF16 encoded char.
    */
-  function on_char(code: Utf16EncodedChar): void;
+  on_char(code: Utf16EncodedChar): void;
 
   /**
    * Called when colours are changed via default UI/columns UI preferences.
    * Use window.GetColourCUI()/window.GetColourDUI() to get new colours.
    */
-  function on_colours_changed(): void;
+  on_colours_changed(): void;
 
   /**
    * Called when "cursor follow playback" state is changed.
    * @param state the current "cursor follow playback" state
    */
-  function on_cursor_follow_playback_changed(state: boolean): void;
+  on_cursor_follow_playback_changed(state: boolean): void;
 
   /**
    * @see {@link https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop}
@@ -99,20 +99,20 @@ declare namespace callbacks {
    * @param y mouse coords
    * @param mask TODO
    */
-  function on_drag_drop(
+  on_drag_drop(
     action: DragDropAction,
     x: number,
     y: number,
     mask: DragDropMask
   ): void;
-  function on_drag_enter(
+  on_drag_enter(
     action: DragDropAction,
     x: number,
     y: number,
     mask: DragDropMask
   ): void;
-  function on_drag_leave(): void;
-  function on_drag_over(
+  on_drag_leave(): void;
+  on_drag_over(
     action: DragDropAction,
     x: number,
     y: number,
@@ -124,18 +124,18 @@ declare namespace callbacks {
    * Called when DSP preset changes.
    * Does not get called when presets are added or removed.
    */
-  function on_dsp_preset_changed(): void;
+  on_dsp_preset_changed(): void;
 
   /**
    * Called when the panel gets/loses focus.
    */
-  function on_focus(is_focused: boolean): void;
+  on_focus(is_focused: boolean): void;
 
   /**
    * Called when fonts are changed via default UI/columns UI preferences.
    * Retrieve fonts using window.GetFontDUI()/window.GetFontCUI()
    */
-  function on_font_changed(): void;
+  on_font_changed(): void;
 
   /**
    * Called when thread created by utils.GetAlbumArtAsync() is done.
@@ -144,7 +144,7 @@ declare namespace callbacks {
    * @param image
    * @param image_path path to the image file or music file if showing embedded artwork
    */
-  function on_get_album_art_done(
+  on_get_album_art_done(
     handle: FbTodo,
     art_id: FbTodo,
     image: FbTodo,
@@ -157,18 +157,14 @@ declare namespace callbacks {
    * @param from
    * @param to
    */
-  function on_item_focus_change(
-    playlistIndex: FbTodo,
-    from: FbTodo,
-    to: FbTodo
-  ): void;
+  on_item_focus_change(playlistIndex: FbTodo, from: FbTodo, to: FbTodo): void;
 
   /**
    * Called when at least one minute of the track has been played or the track has reached
    * its end after at least 1/3 of it has been played through.
    * @param handle
    */
-  function on_item_played(handle: FbMetadbHandle): void;
+  on_item_played(handle: FbMetadbHandle): void;
 
   /*
   Both keyboard related callbacks require "Grab focus" enabled in the Configuration window.
@@ -179,33 +175,33 @@ declare namespace callbacks {
   on_key_down only: Keyboard shortcuts defined in the main preferences are always executed first
   and are not passed to the callback.
   */
-  function on_key_down(vkey: FbTodo): void;
-  function on_key_up(vkey: FbTodo): void;
+  on_key_down(vkey: FbTodo): void;
+  on_key_up(vkey: FbTodo): void;
 
   /**
    * Called when items are added to the library.
    * @param handle_list
    */
-  function on_library_items_added(handle_list: FbMetadbHandleList): void;
+  on_library_items_added(handle_list: FbMetadbHandleList): void;
 
   /**
    * Called when the library items change
    * @param handle_list
    */
-  function on_library_items_changed(handle_list: FbMetadbHandleList): void;
+  on_library_items_changed(handle_list: FbMetadbHandleList): void;
 
   /**
    * Called when items are removed from the library
    * @param handle_list
    */
-  function on_library_items_removed(handle_list: FbMetadbHandleList): void;
+  on_library_items_removed(handle_list: FbMetadbHandleList): void;
 
   /**
    * Called when thread created by gdi.LoadImageAsync() is done.
    * @param cookie
    * @param image
    */
-  function on_load_image_done(cookie: FbTodo, image: FbTodo): void;
+  on_load_image_done(cookie: FbTodo, image: FbTodo): void;
 
   /**
    * On the main menu>File>JScript Panel, there are 10 menu items and whichever number
@@ -216,7 +212,7 @@ declare namespace callbacks {
    * multiple instances. Also, you should avoid sharing scripts containing this code so as not
    * to conflict with what other users may already be using.
    * @example
-   * function on_main_menu(index) {
+   * on_main_menu(index) {
    *   switch (index) {
    *   case 1: // triggered when File>JScript Panel>1 is run
    *     do_something();
@@ -227,7 +223,7 @@ declare namespace callbacks {
    *   }
    * }
    */
-  function on_main_menu(index: number): void;
+  on_main_menu(index: number): void;
 
   /**
    * Called when metadb contents change.
@@ -235,24 +231,21 @@ declare namespace callbacks {
    * @param handle_list
    * @param fromhook true if notification is not from tag update but a component that provides tag-like data from a database. foo_playcount and the "RefreshStats" handle/handle list methods built in to JScript Panel are just 2 examples.
    */
-  function on_metadb_changed(
-    handle_list: FbMetadbHandleList,
-    fromhook: boolean
-  ): void;
+  on_metadb_changed(handle_list: FbMetadbHandleList, fromhook: boolean): void;
 
-  function on_mouse_lbtn_dblclk(x: number, y: number, mask: MouseMask): void;
-  function on_mouse_lbtn_down(x: number, y: number, mask: MouseMask): void;
-  function on_mouse_lbtn_up(x: number, y: number, mask: MouseMask): void;
-  function on_mouse_leave(): void;
-  function on_mouse_mbtn_dblclk(x: number, y: number, mask: MouseMask): void;
-  function on_mouse_mbtn_down(x: number, y: number, mask: MouseMask): void;
-  function on_mouse_mbtn_up(x: number, y: number, mask: MouseMask): void;
-  function on_mouse_move(x: number, y: number, mask: MouseMask): void;
-  function on_mouse_rbtn_dblclk(x: number, y: number, mask: MouseMask): void;
-  function on_mouse_rbtn_down(x: number, y: number, mask: MouseMask): void;
+  on_mouse_lbtn_dblclk(x: number, y: number, mask: MouseMask): void;
+  on_mouse_lbtn_down(x: number, y: number, mask: MouseMask): void;
+  on_mouse_lbtn_up(x: number, y: number, mask: MouseMask): void;
+  on_mouse_leave(): void;
+  on_mouse_mbtn_dblclk(x: number, y: number, mask: MouseMask): void;
+  on_mouse_mbtn_down(x: number, y: number, mask: MouseMask): void;
+  on_mouse_mbtn_up(x: number, y: number, mask: MouseMask): void;
+  on_mouse_move(x: number, y: number, mask: MouseMask): void;
+  on_mouse_rbtn_dblclk(x: number, y: number, mask: MouseMask): void;
+  on_mouse_rbtn_down(x: number, y: number, mask: MouseMask): void;
   // See flags.txt > Mask for mouse callbacks
 
-  function on_mouse_rbtn_up(x: number, y: number, mask: MouseMask): void;
+  on_mouse_rbtn_up(x: number, y: number, mask: MouseMask): void;
   // You must return true if you want to suppress the default context menu.
   // Hold left shift + left windows key to bypass user code and open default context menu.
 
@@ -260,32 +253,32 @@ declare namespace callbacks {
    * Called when the mouse is scrolled vertically.
    * @param step positive for scrolling up, negative for scrolling down
    */
-  function on_mouse_wheel(step: number): void;
+  on_mouse_wheel(step: number): void;
   // Scroll up/down
 
   /**
    * Called when the mouse is scrolled horizontally.
    */
-  function on_mouse_wheel_h(step: number): void;
+  on_mouse_wheel_h(step: number): void;
 
   /**
    * Called in other panels after window.NotifyOthers(name, info) is executed
    * @param name
    * @param info
    */
-  function on_notify_data(name: FbTodo, info: FbTodo): void;
+  on_notify_data(name: FbTodo, info: FbTodo): void;
 
   /**
    * This callback is only available in foobar2000 v1.4 and later.
    * Called when output device changes. Use fb.GetOutputDevices to retrieve settings.
    */
-  function on_output_device_changed(): void;
+  on_output_device_changed(): void;
 
   /**
    * Called when window is ready to draw.
    * @param gr
    */
-  function on_paint(gr: GdiGraphics): void;
+  on_paint(gr: GdiGraphics): void;
   //
   // See interfaces.txt for all the methods used with gr.
 
@@ -293,58 +286,56 @@ declare namespace callbacks {
    * Called when "playback follow cursor" state is changed
    * @param state the current "playback follows cursor" state
    */
-  function on_playback_follow_cursor_changed(
-    playback_follows_cursor: boolean
-  ): void;
+  on_playback_follow_cursor_changed(playback_follows_cursor: boolean): void;
 
   /**
    * Called when per-track dynamic info (VBR bitrate etc) changes.
    */
-  function on_playback_dynamic_info(): void;
+  on_playback_dynamic_info(): void;
 
   /**
    * Called when per-track dynamic info (stream track titles etc) change.
    * Happens less often than on_playback_dynamic_info().
    */
-  function on_playback_dynamic_info_track(): void;
+  on_playback_dynamic_info_track(): void;
 
   /**
    * Called when currently playing file gets edited.
    * Also called by components that provide tag-like data such as foo_playcount.
    * @param handle
    */
-  function on_playback_edited(handle: FbMetadbHandle): void;
+  on_playback_edited(handle: FbMetadbHandle): void;
 
   /**
    * Called when a new track is selected for playback.
    * @param handle
    */
-  function on_playback_new_track(handle: FbMetadbHandle): void;
+  on_playback_new_track(handle: FbMetadbHandle): void;
 
   /**
    * Called when playback order is changed.
    * @param new_order_index
    */
-  function on_playback_order_changed(new_order_index: PlaybackOrder): void;
+  on_playback_order_changed(new_order_index: PlaybackOrder): void;
 
   /**
    * Called when playback pauses.
    */
-  function on_playback_pause(is_paused: boolean): void;
+  on_playback_pause(is_paused: boolean): void;
   // state: boolean, true when paused, false when unpaused.
 
   /**
    * Called when the playback queue changes.
    * @param origin
    */
-  function on_playback_queue_changed(origin: PlaybackQueueChangeReason): void;
+  on_playback_queue_changed(origin: PlaybackQueueChangeReason): void;
   // origin:
 
   /**
    * Called when the track position is seeked
    * @param time the seeked position in the track in seconds
    */
-  function on_playback_seek(time: number): void;
+  on_playback_seek(time: number): void;
   // time: float value, in seconds.
 
   /**
@@ -352,57 +343,51 @@ declare namespace callbacks {
    * @param cmd
    * @param is_paused
    */
-  function on_playback_starting(
-    cmd: PlaybackStartCommand,
-    is_paused: boolean
-  ): void;
+  on_playback_starting(cmd: PlaybackStartCommand, is_paused: boolean): void;
 
   /**
    * Called when playback stops
    * @param reason
    */
-  function on_playback_stop(reason: PlaybackStopReason): void;
+  on_playback_stop(reason: PlaybackStopReason): void;
 
   /**
    * Called every second a track is playing. Useful for time display.
    * @param time the elapsed fractional playback time in seconds
    */
-  function on_playback_time(time: number): void;
+  on_playback_time(time: number): void;
 
-  function on_playlist_item_ensure_visible(
+  on_playlist_item_ensure_visible(
     playlistIndex: number,
     playlistItemIndex: number
   ): void;
 
-  function on_playlist_items_added(playlistIndex: number): void;
-  function on_playlist_items_removed(
-    playlistIndex: number,
-    new_count: number
-  ): void;
-  function on_playlist_items_reordered(playlistIndex: number): void;
+  on_playlist_items_added(playlistIndex: number): void;
+  on_playlist_items_removed(playlistIndex: number, new_count: number): void;
+  on_playlist_items_reordered(playlistIndex: number): void;
 
   /**
    * Workaround for some 3rd party playlist viewers not working with on_selection_changed().
    */
-  function on_playlist_items_selection_change(): void;
+  on_playlist_items_selection_change(): void;
 
   /**
    * Called when "stop after current" is enabled/disabled.
    * @param state the current "stop after current" state
    */
-  function on_playlist_stop_after_current_changed(state: boolean): void;
+  on_playlist_stop_after_current_changed(state: boolean): void;
 
   /**
    * TODO
    */
-  function on_playlist_switch(): void;
+  on_playlist_switch(): void;
 
   /**
    * Called when:
    * - playlists are added/removed/reordered/renamed.
    * - a playlist's lock status changes through the use of components such as foo_utils or foo_playlist_attributes.
    */
-  function on_playlists_changed(): void;
+  on_playlists_changed(): void;
 
   /**
    * This callback is only available in foobar2000 v1.4 and later.
@@ -411,27 +396,29 @@ declare namespace callbacks {
    *
    * @param new_mode
    */
-  function on_replaygain_mode_changed(new_mode: ReplayGainMode): void;
+  on_replaygain_mode_changed(new_mode: ReplayGainMode): void;
 
   /**
    * This callback is not guaranteed to be called during unloading.
    */
-  function on_script_unload(): void;
+  on_script_unload(): void;
 
   /**
    * Called when selection changes based on "File>Preferences>Display>Selection viewers".
    */
-  function on_selection_changed(): void;
+  on_selection_changed(): void;
 
   /**
    * Called when panel is resized.
    * IMPORTANT: DO NOT call window.Repaint()
    */
-  function on_size(): void;
+  on_size(): void;
 
   /**
    * Called when the volume is changed.
    * @param val the volume in dBFS (minimum -100, maximum 0)
    */
-  function on_volume_change(val: number): void;
+  on_volume_change(val: number): void;
 }
+
+declare var callbacks: Callbacks;
