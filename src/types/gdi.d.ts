@@ -49,7 +49,7 @@ declare interface GdiBitmap {
   //     Methods:
   //       Dispose(); (void)
   //   }
-  // Dispose(); (void)
+  Dispose(): void;
   // GetColourScheme(max_count); (VBArray)
   // // Returns a VBArray so you need to use .toArray() on the result.
   // GetColourSchemeJSON(max_count); (string)
