@@ -456,12 +456,6 @@ class AlbumArtImage {
       this.scaleH = 180 / this.albumArt.Height;
       this.scale = Math.min(this.scaleW, this.scaleH);
 
-      if (this.scaleW < this.scaleH) {
-        this.Y = (displayManager.width - this.albumArt.Height * this.scale) / 2;
-      } else if (this.scaleW > this.scaleH) {
-        this.X = (displayManager.height - this.albumArt.Width * this.scale) / 2;
-      }
-
       debugging.Trace('[ALBUM ART IMAGE] Processed');
       debugging.Trace(
         `[ALBUM ART IMAGE]\tWidth: ${this.albumArt.Width}, Height: ${
@@ -497,13 +491,19 @@ class AlbumArtImage {
 
     return out;
   }
+
+  public Dispose() {
+    if (this.albumArt) {
+      this.albumArt.Dispose();
+}
+  }
 }
 
 //  Module Managers
 
 class AlbumArtManager {
   private currentAlbumArt = new AlbumArtImage();
-  private previousAlbumArt: any | null = null;
+  private previousAlbumArt: AlbumArtImage | null = null;
 
   private isAnimating = false;
   private animationIn = newAlbumArtAnimationIn;
@@ -535,13 +535,8 @@ class AlbumArtManager {
     //  and place it in a buffer.
     this.previousAlbumArt = this.currentAlbumArt.Clone();
 
-    //  Move the album art off frame to be animated in.
-    this.currentAlbumArt.X = -180;
-
     if (this.previousAlbumArt != null) {
       debugging.Trace('[ALBUM ART MANAGER] Previous album art cloned.');
-      this.previousAlbumArt.X = 20;
-
       this.isAnimating = true;
 
       this.animationIn.reset();
@@ -576,12 +571,20 @@ class AlbumArtManager {
 
   public Animate() {
     if (this.isAnimating) {
-      this.isAnimating = this.animationIn.Update();
-      this.isAnimating = this.animationOut.Update();
+      const inAnimating = this.animationIn.Update();
+      const outAnimating = this.animationOut.Update();
+
+      if (!inAnimating && !outAnimating && this.previousAlbumArt) {
+        // finished animating
+        this.previousAlbumArt.Dispose();
+        this.isAnimating = false;
+      }
     }
 
+    if (this.previousAlbumArt && this.currentAlbumArt) {
     this.currentAlbumArt.animateIn = this.isAnimating;
     this.previousAlbumArt.animateOut = this.isAnimating;
+    }
 
     displayManager.AnimationLatch(this.isAnimating);
     this.Update();
@@ -686,9 +689,8 @@ class InfoString {
     );
   }
 
-  //  When a new song is played, we want to animate the old album art out
-  //  and animate in the new album art.
-  public Refresh() {
+  public ResetAnimation() {
+    if (this.Animation != null) {
     debugging.Trace(`[INFOSTRING ${this.Text}] Refresh`);
 
     //  Move the album art off frame to be animated in.
@@ -696,7 +698,6 @@ class InfoString {
 
     this.isAnimating = true;
 
-    if (this.Animation != null) {
       this.Animation.reset();
     }
   }
@@ -925,6 +926,8 @@ callbacks.on_playback_new_track = (metadb: FbMetadbHandle) => {
   handleNewTrack(store);
 
   albumArtManager.UpdateAlbumArt(metadb);
+  MetadataArray.forEach(elem => elem.ResetAnimation());
+
   trackInfoUpdated();
 
   window.Repaint();
