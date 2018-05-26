@@ -897,24 +897,24 @@ function on_timer() {
   window.Repaint();
 }
 
-export function handlePaint(gr: GdiGraphics) {
+function handlePaint(gr: GdiGraphics) {
   displayManager.height = window.Height;
   displayManager.width = window.Width;
 
   displayManager.Paint(gr);
 }
 
-export function handleToggleConsole() {
+function handleToggleConsole() {
   consoleEnabled = !consoleEnabled;
 }
 
-export function handleStarting() {
+function handleStarting() {
   if (justStarted) {
     justStarted = false;
   }
 }
 
-export function handleNewTrack(metadb: FbMetadbHandle) {
+function handleNewTrack(metadb: FbMetadbHandle) {
   albumArtManager.UpdateAlbumArt(metadb);
   MetadataArray.forEach(elem => elem.ResetAnimation());
 
@@ -923,7 +923,7 @@ export function handleNewTrack(metadb: FbMetadbHandle) {
   window.Repaint();
 }
 
-export function handleAlbumArtLoaded(
+function handleAlbumArtLoaded(
   metadb: FbMetadbHandle,
   art_id: any,
   image: any,
@@ -932,7 +932,7 @@ export function handleAlbumArtLoaded(
   albumArtManager.DoneUpdatingAlbumArt(metadb, art_id, image, image_path);
 }
 
-export function handleMouseWheel(delta: number) {
+function handleMouseWheel(delta: number) {
   if (plman.PlaybackOrder === 0 && delta === -1) {
     plman.PlaybackOrder = 6;
   }
@@ -944,6 +944,24 @@ export function handleMouseWheel(delta: number) {
   }
 }
 
-export function handleTrackInfoUpdated() {
+function handleTrackInfoUpdated() {
   trackInfoUpdated();
 }
+
+function handleKeyUp(key: number) {
+  if (key === 0xc0) {
+    handleToggleConsole();
+  }
+}
+
+export const router: Partial<Callbacks> = {
+  on_paint: handlePaint,
+  on_key_up: handleKeyUp,
+  on_playback_starting: handleStarting,
+  on_playback_new_track: handleNewTrack,
+  on_get_album_art_done: handleAlbumArtLoaded,
+  on_mouse_wheel: handleMouseWheel,
+  on_playback_dynamic_info: handleTrackInfoUpdated,
+  on_playback_dynamic_info_track: handleTrackInfoUpdated,
+  on_playback_time: handleTrackInfoUpdated,
+};

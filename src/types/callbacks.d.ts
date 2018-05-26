@@ -421,4 +421,4 @@ declare interface Callbacks {
   on_volume_change(val: number): void;
 }
 
-declare var callbacks: Callbacks;
+declare var callbacks: Partial<Callbacks>;
