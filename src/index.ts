@@ -737,7 +737,7 @@ function MetadataInitialize() {
   // tslint:disable-next-line:no-unnecessary-local-variable
   const metadataArray = [
     new InfoString(
-      '',
+      'artist',
       ARTIST_X,
       ARTIST_Y,
       1999,
@@ -751,7 +751,7 @@ function MetadataInitialize() {
       0
     ),
     new InfoString(
-      '',
+      'album',
       ALBUM_X,
       ALBUM_Y,
       1999,
@@ -765,7 +765,7 @@ function MetadataInitialize() {
       0
     ),
     new InfoString(
-      '',
+      'title',
       TITLE_X,
       TITLE_Y,
       1999,
