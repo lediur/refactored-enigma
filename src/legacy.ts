@@ -83,7 +83,7 @@ class Debugging {
   private debugColor = rgba(27, 161, 226, 255);
   private frameCounterColor = rgba(255, 255, 255, 255);
   private framePos = 0;
-  private enableTracing = true;
+  private enableTracing = false;
   private frameCounter = 0;
 
   public Append(e: string) {
