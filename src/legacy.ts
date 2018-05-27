@@ -334,12 +334,13 @@ class Animation {
     this.duration = duration / TIMER_INTERVAL_ANIM;
     this.delay = delay / TIMER_INTERVAL_ANIM;
     this.timer = 0 - this.delay;
-    this.tick = 0.0;
+    this.tick = 0;
+    this.reset();
   }
 
   public reset() {
-    this.tick = 0;
-    this.timer = 0;
+    this.timer = 0 - this.delay;
+    this.tick = 0.0;
   }
 
   public X() {
@@ -386,12 +387,20 @@ const newArtistAnimation = new Animation({
   y: ARTIST_Y,
 });
 
+const newAlbumAnimation = new Animation({
+  startX: 500,
+  startY: ALBUM_Y,
+  x: ALBUM_X,
+  y: ALBUM_Y,
+  delay: 150,
+});
+
 const newAlbumArtAnimationIn = new Animation({
   startX: 500,
   startY: ALBUMART_Y,
   x: ALBUMART_X,
   y: ALBUMART_Y,
-  delay: 150,
+  delay: 300,
 });
 
 const newAlbumArtAnimationOut = new Animation({
@@ -399,14 +408,6 @@ const newAlbumArtAnimationOut = new Animation({
   startY: ALBUMART_Y,
   x: -380,
   y: ALBUMART_Y,
-  delay: 150,
-});
-
-const newAlbumAnimation = new Animation({
-  startX: 500,
-  startY: ALBUM_Y,
-  x: ALBUM_X,
-  y: ALBUM_Y,
   delay: 300,
 });
 
