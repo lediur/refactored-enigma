@@ -712,7 +712,7 @@ class InfoString {
       }
 
       if (getAlpha(this.Color) !== this.Animation.A()) {
-        setAlpha(this.Color, this.Animation.A());
+        this.Color = setAlpha(this.Color, this.Animation.A());
       }
     }
 
