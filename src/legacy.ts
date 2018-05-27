@@ -193,12 +193,12 @@ const shuffleStatus = new ShuffleStatus();
 class DisplayManager {
   public width: number;
   public height: number;
-  private animationTimerEngaged: boolean;
+  private animationsInProgress: number;
 
   constructor() {
     this.width = window.Width;
     this.height = window.Height;
-    this.animationTimerEngaged = false;
+    this.animationsInProgress = 0;
   }
 
   public Paint(gr: any) {
@@ -231,7 +231,7 @@ class DisplayManager {
 
     // DEBUGGING INFORMATION
     if (consoleEnabled) {
-      debugging.Append(`${this.animationTimerEngaged ? '60' : '10'} FPS`);
+      debugging.Append(`${this.animationsInProgress > 0 ? '60' : '10'} FPS`);
       debugging.Append(
         `PlaybackOrder: ${
           plman.PlaybackOrder
@@ -243,8 +243,8 @@ class DisplayManager {
   }
 
   public StartAnimation() {
-    if (!this.animationTimerEngaged) {
-      debugging.Trace('[DISPLAY] Started isAnimating...');
+    if (this.animationsInProgress === 0) {
+      debugging.Trace('[DISPLAY] Started isAnimating latch...');
 
       if (timer != null) {
         window.ClearInterval(timer);
@@ -252,14 +252,16 @@ class DisplayManager {
 
       timer = window.SetInterval(on_timer, TIMER_INTERVAL_ANIM);
       timerInterval = TIMER_INTERVAL_ANIM;
-      this.animationTimerEngaged = true;
     }
+
+    this.animationsInProgress++;
   }
 
   public EndAnimation() {
-    if (this.animationTimerEngaged) {
-      this.animationTimerEngaged = false;
-      debugging.Trace('[DISPLAY] Stopped isAnimating...');
+    this.animationsInProgress--;
+
+    if (this.animationsInProgress === 0) {
+      debugging.Trace('[DISPLAY] Stopped isAnimating latch...');
 
       if (timer != null) {
         window.ClearInterval(timer);
@@ -268,14 +270,6 @@ class DisplayManager {
       // tslint:disable-next-line:no-unnecessary-callback-wrapper
       timer = window.SetInterval(on_timer, TIMER_INTERVAL_NORMAL);
       timerInterval = TIMER_INTERVAL_NORMAL;
-    }
-  }
-
-  public AnimationLatch(isAnimating: boolean) {
-    if (isAnimating && !this.animationTimerEngaged) {
-      this.StartAnimation();
-    } else if (!isAnimating && this.animationTimerEngaged) {
-      this.EndAnimation();
     }
   }
 }
@@ -577,8 +571,9 @@ class AlbumArtManager {
 
     if (this.previousAlbumArt != null) {
       debugging.Trace('[ALBUM ART MANAGER] Previous album art cloned.');
-      this.isAnimating = true;
 
+      this.isAnimating = true;
+      displayManager.StartAnimation();
       this.animationIn.reset();
       this.animationOut.reset();
     }
@@ -618,6 +613,7 @@ class AlbumArtManager {
         // finished animating
         this.previousAlbumArt.Dispose();
         this.isAnimating = false;
+        displayManager.EndAnimation();
       }
     }
 
@@ -626,7 +622,6 @@ class AlbumArtManager {
       this.previousAlbumArt.animateOut = this.isAnimating;
     }
 
-    displayManager.AnimationLatch(this.isAnimating);
     this.Update();
   }
 }
@@ -737,6 +732,7 @@ class InfoString {
       this.X = -380;
 
       this.isAnimating = true;
+      displayManager.StartAnimation();
 
       this.Animation.reset();
     }
@@ -765,6 +761,10 @@ class InfoString {
   public Animate() {
     if (this.isAnimating && this.Animation != null) {
       this.isAnimating = this.Animation.Update();
+
+      if (!this.isAnimating) {
+        displayManager.EndAnimation();
+      }
     }
 
     this.Update();
