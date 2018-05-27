@@ -36,7 +36,7 @@ To build this repository, you need a functioning Node dev environment and `npm` 
 
 * [ ] 🏃‍ A comprehensive and thorough documentation and type definition of the original JScript Panel interfaces and related documentation into TypeScript type definitions
 * [ ] Figure out if I can get an existing JavaScript UI library to work with GDI
-* [ ] Actually make my original code work again
+* [x] Actually make my original code work again
 
 ## Is it any good
 
