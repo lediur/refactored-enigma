@@ -282,41 +282,58 @@ class DisplayManager {
 
 const displayManager = new DisplayManager();
 
+interface AnimationOptions {
+  startX?: number;
+  startY?: number;
+  x: number;
+  y: number;
+  startA?: number;
+  endA?: number;
+  fade?: boolean;
+  ease?: boolean;
+  duration?: number;
+  delay?: number;
+}
+
 //  Animations
 class Animation {
-  private initX: number;
-  private initY: number;
-  private endX: number;
-  private endY: number;
-  private shouldFade: boolean;
-  private initA: number;
+  private startX: number;
+  private startY: number;
+  private x: number;
+  private y: number;
+  private startA: number;
   private endA: number;
+  private shouldFade: boolean;
   private shouldEase: boolean;
   private timer: number;
   private duration: number;
+  private delay: number;
   private tick: number;
 
-  constructor(
-    initX: number,
-    initY: number,
-    endX: number,
-    endY: number,
-    shouldFade: boolean = false,
-    initA: number = 0,
-    endA: number = 255,
-    shouldEase: boolean = true
-  ) {
-    this.initX = initX;
-    this.initY = initY;
-    this.endX = endX;
-    this.endY = endY;
-    this.shouldFade = shouldFade;
-    this.initA = initA;
+  constructor({
+    x,
+    y,
+    startX = x,
+    startY = y,
+    startA = 0,
+    endA = 255,
+    fade = false,
+    ease = true,
+    duration = 800,
+    delay = 0,
+  }: AnimationOptions) {
+    this.startX = startX;
+    this.startY = startY;
+    this.x = x;
+    this.y = y;
+    this.shouldFade = fade;
+    this.startA = startA;
     this.endA = endA;
-    this.shouldEase = shouldEase;
+    this.shouldEase = ease;
 
-    this.timer = 0;
-    this.duration = 800 * 0.06;
+    this.duration = duration / TIMER_INTERVAL_ANIM;
+    this.delay = delay / TIMER_INTERVAL_ANIM;
+    this.timer = 0 - this.delay;
     this.tick = 0.0;
   }
 
@@ -326,20 +343,30 @@ class Animation {
   }
 
   public X() {
-    return this.endX - (this.endX - this.initX) * (1 - this.tick);
+    return this.x - (this.x - this.startX) * (1 - this.tick);
   }
 
   public Y() {
-    return this.endY - (this.endY - this.initY) * (1 - this.tick);
+    return this.y - (this.y - this.startY) * (1 - this.tick);
   }
 
   public A() {
-    return this.endA - (this.endA - this.initA) * (1 - this.tick);
+    return this.endA - (this.endA - this.startA) * (1 - this.tick);
   }
 
-  private Ease(tick: number, start: number, rate: number, duration: number) {
-    const updatedTick = tick / duration - 1;
-    return rate * (updatedTick * updatedTick * updatedTick + 1) + start;
+  private Ease(
+    timerCount: number,
+    start: number,
+    rate: number,
+    duration: number
+  ) {
+    if (timerCount >= 0) {
+      const updatedTick = timerCount / duration - 1;
+      return rate * (updatedTick * updatedTick * updatedTick + 1) + start;
+    } else {
+      // delayed
+      return 0;
+    }
   }
 
   // We perform an easing function to smoothly interpolate the time function
@@ -352,31 +379,44 @@ class Animation {
   }
 }
 
-const newAlbumArtAnimationIn = new Animation(
-  500,
-  ALBUMART_Y,
-  ALBUMART_X,
-  ALBUMART_Y
-);
+const newArtistAnimation = new Animation({
+  startX: 500,
+  startY: ARTIST_Y,
+  x: ARTIST_X,
+  y: ARTIST_Y,
+});
 
-const newAlbumArtAnimationOut = new Animation(
-  ALBUMART_X,
-  ALBUMART_Y,
-  -380,
-  ALBUMART_Y
-);
+const newAlbumArtAnimationIn = new Animation({
+  startX: 500,
+  startY: ALBUMART_Y,
+  x: ALBUMART_X,
+  y: ALBUMART_Y,
+  delay: 150,
+});
 
-const newArtistAnimation = new Animation(
-  -380,
-  ARTIST_Y,
-  ARTIST_X,
-  ARTIST_Y,
-  true
-);
+const newAlbumArtAnimationOut = new Animation({
+  startX: ALBUMART_X,
+  startY: ALBUMART_Y,
+  x: -380,
+  y: ALBUMART_Y,
+  delay: 150,
+});
 
-const newAlbumAnimation = new Animation(-380, ALBUM_Y, ALBUM_X, ALBUM_Y, true);
+const newAlbumAnimation = new Animation({
+  startX: 500,
+  startY: ALBUM_Y,
+  x: ALBUM_X,
+  y: ALBUM_Y,
+  delay: 300,
+});
 
-const newTitleAnimation = new Animation(-380, TITLE_Y, TITLE_X, TITLE_Y, true);
+const newTitleAnimation = new Animation({
+  startX: 500,
+  startY: TITLE_Y,
+  x: TITLE_X,
+  y: TITLE_Y,
+  delay: 450,
+});
 
 class AlbumArtImage {
   private albumArt: GdiBitmap | null = null;
