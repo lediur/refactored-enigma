@@ -49,6 +49,8 @@ const META_X = 215;
 const META_STARTINGY = 308;
 const META_DELTA = 20;
 
+const ALBUMART_MAX_DIM = 180;
+
 //  Color Information
 const C_BACKGROUND = rgb(240, 240, 240);
 const C_FOREGROUND = rgb(10, 10, 10);
@@ -68,7 +70,6 @@ const semilightFont = 'Segoe UI Semilight';
 //  Timer
 let timer: TimerId | null = null;
 let timerInterval: number | null = null;
-const TIMER_INTERVAL_NORMAL = 100;
 const TIMER_INTERVAL_ANIM = 1000 / 60;
 let justStarted = true;
 
@@ -202,7 +203,8 @@ class DisplayManager {
   }
 
   public Paint(gr: any) {
-    gr.SetTextRenderingHint(4);
+    gr.SetTextRenderingHint(3);
+    gr.SetSmoothingMode(4);
 
     // Background fill
     gr.FillSolidRect(0, 0, this.width, this.height, C_BACKGROUND);
@@ -218,7 +220,7 @@ class DisplayManager {
       gr.FillSolidRect(
         0,
         this.height - 5,
-        fb.PlaybackTime / fb.PlaybackLength * this.width,
+        (fb.PlaybackTime / fb.PlaybackLength) * this.width,
         5,
         C_ACCENT
       );
@@ -266,10 +268,6 @@ class DisplayManager {
       if (timer != null) {
         window.ClearInterval(timer);
       }
-
-      // tslint:disable-next-line:no-unnecessary-callback-wrapper
-      timer = window.SetInterval(on_timer, TIMER_INTERVAL_NORMAL);
-      timerInterval = TIMER_INTERVAL_NORMAL;
     }
   }
 }
@@ -313,7 +311,7 @@ class Animation {
     endA = 255,
     fade = false,
     ease = true,
-    duration = 800,
+    duration = 500,
     delay = 0,
   }: AnimationOptions) {
     this.startX = startX;
@@ -325,8 +323,8 @@ class Animation {
     this.endA = endA;
     this.shouldEase = ease;
 
-    this.duration = duration / TIMER_INTERVAL_ANIM;
-    this.delay = delay / TIMER_INTERVAL_ANIM;
+    this.duration = Math.floor(duration / TIMER_INTERVAL_ANIM);
+    this.delay = Math.floor(delay / TIMER_INTERVAL_ANIM);
     this.timer = 0 - this.delay;
     this.tick = 0;
     this.reset();
@@ -375,48 +373,57 @@ class Animation {
 }
 
 const newArtistAnimation = new Animation({
-  startX: 500,
+  startX: 150,
   startY: ARTIST_Y,
   x: ARTIST_X,
   y: ARTIST_Y,
+  fade: true,
 });
 
 const newAlbumAnimation = new Animation({
-  startX: 500,
+  startX: 150,
   startY: ALBUM_Y,
   x: ALBUM_X,
   y: ALBUM_Y,
-  delay: 150,
+  fade: true,
+  delay: 75,
 });
 
 const newAlbumArtAnimationIn = new Animation({
-  startX: 500,
+  startX: 150,
   startY: ALBUMART_Y,
   x: ALBUMART_X,
   y: ALBUMART_Y,
-  delay: 300,
+  startA: 0,
+  endA: 255,
+  fade: true,
+  delay: 150,
 });
 
 const newAlbumArtAnimationOut = new Animation({
   startX: ALBUMART_X,
   startY: ALBUMART_Y,
-  x: -380,
+  x: -150,
   y: ALBUMART_Y,
-  delay: 300,
+  startA: 255,
+  endA: 0,
+  fade: true,
+  delay: 150,
 });
 
 const newTitleAnimation = new Animation({
-  startX: 500,
+  startX: 150,
   startY: TITLE_Y,
   x: TITLE_X,
   y: TITLE_Y,
-  delay: 450,
+  fade: true,
+  delay: 225,
 });
 
 class AlbumArtImage {
   private albumArt: GdiBitmap | null = null;
 
-  private alpha = 255;
+  public alpha = 255;
   public X = ALBUMART_X;
   public Y = ALBUMART_Y;
 
@@ -486,8 +493,8 @@ class AlbumArtImage {
 
     //  Keep aspect ratio
     if (this.albumArt) {
-      this.scaleW = 180 / this.albumArt.Width;
-      this.scaleH = 180 / this.albumArt.Height;
+      this.scaleW = ALBUMART_MAX_DIM / this.albumArt.Width;
+      this.scaleH = ALBUMART_MAX_DIM / this.albumArt.Height;
       this.scale = Math.min(this.scaleW, this.scaleH);
 
       debugging.Trace('[ALBUM ART IMAGE] Processed');
@@ -596,10 +603,14 @@ class AlbumArtManager {
     if (this.isAnimating) {
       if (this.currentAlbumArt) {
         this.currentAlbumArt.X = this.animationIn.X();
+        this.currentAlbumArt.Y = this.animationIn.Y();
+        this.currentAlbumArt.alpha = this.animationIn.A();
       }
 
       if (this.previousAlbumArt) {
         this.previousAlbumArt.X = this.animationOut.X();
+        this.previousAlbumArt.Y = this.animationOut.Y();
+        this.previousAlbumArt.alpha = this.animationOut.A();
       }
     }
   }
@@ -833,7 +844,7 @@ function MetadataInitialize() {
       TITLE_Y,
       1999,
       50,
-      normalFont,
+      semiboldFont,
       24,
       0,
       C_TITLE,
@@ -932,6 +943,8 @@ function trackInfoUpdated() {
   if (MetadataArray) {
     updateMetadata();
   }
+
+  window.Repaint();
 }
 
 function on_timer() {
@@ -983,6 +996,8 @@ function handleMouseWheel(delta: number) {
   if (plman.PlaybackOrder > 4) {
     plman.PlaybackOrder = 0;
   }
+
+  window.Repaint();
 }
 
 function handleTrackInfoUpdated() {
