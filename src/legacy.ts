@@ -785,7 +785,6 @@ function MetadataInitialize() {
     'BITRATE',
     'SAMPRATE',
     'CHANNELS',
-    'HEART',
   ];
 
   const SidebarFormatArray = [
@@ -798,7 +797,6 @@ function MetadataInitialize() {
       '$div(%samplerate%,1000)$ifgreater($cut($mod(%samplerate%,1000),1),0,.$cut($mod(%samplerate%,1000),1),) kHz'
     ),
     fb.TitleFormat('%channels%'),
-    fb.TitleFormat('$repeat(♥, %LASTFM_LOVED_DB%)'),
   ];
 
   // tslint:disable-next-line:no-unnecessary-local-variable
@@ -904,7 +902,11 @@ function MetadataInitialize() {
   ];
 
   // tslint:disable-next-line:no-increment-decrement
-  for (let sidebarIndex = 1; sidebarIndex < 7; sidebarIndex++) {
+  for (
+    let sidebarIndex = 1;
+    sidebarIndex < SidebarTitleArray.length;
+    sidebarIndex++
+  ) {
     metadataArray.push(
       new InfoString(
         SidebarTitleArray[sidebarIndex],
