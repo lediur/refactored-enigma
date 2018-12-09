@@ -532,12 +532,6 @@ class AlbumArtImage {
 
     return out;
   }
-
-  public Dispose() {
-    if (this.albumArt) {
-      this.albumArt.Dispose();
-    }
-  }
 }
 
 //  Module Managers
@@ -622,7 +616,6 @@ class AlbumArtManager {
 
       if (!inAnimating && !outAnimating && this.previousAlbumArt) {
         // finished animating
-        this.previousAlbumArt.Dispose();
         this.isAnimating = false;
         displayManager.EndAnimation();
       }

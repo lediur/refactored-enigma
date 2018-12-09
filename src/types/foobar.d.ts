@@ -12,8 +12,6 @@ type FbMetadbHandle = FbTodo;
 type FbTodo = any;
 
 declare interface FbUiSelectionHolder {
-  Dispose(): void;
-
   /**
    * Sets the selected items
    * @see {@link https://github.com/lediur/foo_jscript_panel/blob/master/foo_jscript_panel/docs/Interfaces.txt}
@@ -103,8 +101,6 @@ declare interface MenuObj {
     selected_item_id: AppendMenuItemId
   ): void;
 
-  Dispose(): void;
-
   TrackPopupMenu(x: number, y: number, flags?: TrackPopupMenuFlags): void;
   // flags: default 0. See flags.txt > Used in TrackPopupMenu()
 }
@@ -120,7 +116,6 @@ declare interface ContextMenuManager {
     base_id: AppendMenuItemId,
     max_id?: AppendMenuItemId
   ): void;
-  Dispose(): void;
   ExecuteByID(id: AppendMenuItemId): boolean;
   InitContext(handle_list: FbMetadbHandleList): void;
   InitNowPlaying(): void;
@@ -128,7 +123,6 @@ declare interface ContextMenuManager {
 
 declare interface MainMenuManager {
   BuildMenu(menuObj: MenuObj, base_id: AppendMenuItemId, count: number): void;
-  Dispose(): void;
   ExecuteByID(id: AppendMenuItemId): boolean;
 
   /**
@@ -210,8 +204,6 @@ declare interface VBArray<T> {
 }
 
 declare interface FbTitleFormat {
-  Dispose(): void;
-
   /**
    * Evaluate the title format string against the currently playing track.
    *
