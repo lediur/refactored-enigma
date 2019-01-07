@@ -16,27 +16,27 @@ I wrote some JavaScript a decade ago for displaying song info in foobar2000. The
 
 ## How do I use it
 
-You need a copy of foobar2000 and the [foo_spider_monkey_panel by TheQwertiest](https://github.com/TheQwertiest/foo_spider_monkey_panel) to use this panel.
+You need a copy of foobar2000 and [foo_spider_monkey_panel by TheQwertiest](https://github.com/TheQwertiest/foo_spider_monkey_panel) to use this panel.
 
 To build this repository, you need a functioning Node dev environment and `npm` or `yarn`.
 
-1.  Clone this repository
-1.  Run `yarn`, then `yarn build`. This will produce a `dist/index.js`.
-1.  In foobar2000, add the foo_jscript_panel to your UI
-1.  Right click on the foo_jscript_panel and choose "Configure".
-1.  In the window that pops up, click the "Tools" button in the bottom left, then choose "Import..."
-1.  Navigate to the `dist/` folder in this repo and choose the index.js file.
+1. Clone this repository
+1. Run `yarn`, then `yarn build`. This will produce a `dist/index.js`.
+1. In foobar2000, add the foo_jscript_panel to your UI
+1. Right click on the foo_jscript_panel and choose "Configure".
+1. In the window that pops up, click the "Tools" button in the bottom left, then choose "Import..."
+1. Navigate to the `dist/` folder in this repo and choose the index.js file.
 
 ## Experiments tried so far
 
-* Transpilation from TypeScript using a horrifying hackjob of Browserify, Babelify, Tsify, and Gulp
-* Introducing Redux, because why not
+- Transpilation from TypeScript using a horrifying hackjob of Browserify, Babelify, Tsify, and Gulp
+- Introducing Redux, because why not
 
 ## WIP and TODO
 
-* [ ] 🏃‍ A comprehensive and thorough documentation and type definition of the original JScript Panel interfaces and related documentation into TypeScript type definitions
-* [ ] Figure out if I can get an existing JavaScript UI library to work with GDI
-* [x] Actually make my original code work again
+- [ ] 🏃‍ A comprehensive and thorough documentation and type definition of the original JScript Panel interfaces and related documentation into TypeScript type definitions
+- [ ] Figure out if I can get an existing JavaScript UI library to work with GDI
+- [x] Actually make my original code work again
 
 ## Is it any good
 
