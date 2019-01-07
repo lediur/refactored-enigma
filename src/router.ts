@@ -35,13 +35,7 @@ export function reducer(
   }
 }
 
-const rootCallbacks: Partial<Callbacks> = {
-  on_key_up: (key: number) => {
-    if (key === 65) {
-      store.dispatch(replace(legacyRouter));
-    }
-  },
-};
+const rootCallbacks: Partial<Callbacks> = legacyRouter;
 
 function handleLookupWithArgs(name: string) {
   return (...args: any[]) => {
