@@ -12,11 +12,11 @@
 
 ## What is this thing
 
-I wrote some JavaScript a decade ago for displaying song info in foobar2000. The original code is _bad_. I wanted to make it better. This repo is me finding out exactly how much I can bend the poor JavaScript engine in the JScript Panel.
+I wrote some JavaScript a decade ago for displaying song info in foobar2000. The original code is bad. I wanted to make it better. This repo is me finding out exactly how much I can bend the poor JavaScript engine in the JScript Panel.
 
 ## How do I use it
 
-You need a copy of foobar2000 and the [foo_jscript_panel plugin by marc2003](https://github.com/marc2k3/foo_jscript_panel) to use this panel.
+You need a copy of foobar2000 and the [foo_spider_monkey_panel by TheQwertiest](https://github.com/TheQwertiest/foo_spider_monkey_panel) to use this panel.
 
 To build this repository, you need a functioning Node dev environment and `npm` or `yarn`.
 
@@ -40,4 +40,4 @@ To build this repository, you need a functioning Node dev environment and `npm` 
 
 ## Is it any good
 
-Oh god no.
+😨
