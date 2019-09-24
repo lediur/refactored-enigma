@@ -7,7 +7,7 @@ const concat = require('gulp-concat');
 const buffer = require('vinyl-buffer');
 const header = require('gulp-header');
 
-function build() {
+async function build() {
   var config = {
     src: 'src/index.ts',
     filename: 'index.js',
@@ -36,7 +36,7 @@ function build() {
   const postShim = gulp.src('shims/postshim.js');
   const headerComment = `// Built ${new Date().toISOString()}\n`;
 
-  return streamqueue({ objectMode: true }, preShim, mainStream, postShim)
+  return await streamqueue({ objectMode: true }, preShim, mainStream, postShim)
     .pipe(concat(config.filename))
     .pipe(header(headerComment))
     .on('error', swallowError)
@@ -60,3 +60,5 @@ gulp.task('watch', function() {
 gulp.task('build', function() {
   build();
 });
+
+exports.build = build;
